@@ -9,11 +9,11 @@ public class EnemyManager {
     public EnemyManager(){
         enemies = new HashMap<>();
     }
-    public void AddEnemy(int ID){
-        enemies.put(ID, new Leech(ID, 50, 50, 100));
+    public void AddEnemy(int ID, PlayerManager pPlayerManager){
+        enemies.put(ID, new Leech(ID, 50, 50, 100, pPlayerManager));
     }
-    public void AddEnemy(int ID, int Y){
-        enemies.put(ID, new Leech(ID, 50, Y, 100));
+    public void AddEnemy(int ID, int Y, PlayerManager pPlayerManager){
+        enemies.put(ID, new Leech(ID, 50, Y, 100, pPlayerManager));
     }
     public void incomingData(String data) {
         data = data.substring(3);

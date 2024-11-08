@@ -35,6 +35,26 @@ public class PlayerManager{
         outData.append(UDPServer.LongToBinary(System.currentTimeMillis() - serverStartTime, 64));
         return outData.toString();
     }
+    //lets enemies find their closest player to target it or run away ect
+    public Vector2 GetClosestPlayersPosition(Vector2 enemyPos){
+        double closestDistance = Double.MAX_VALUE;
+        int closestID = -1;
+        for(Integer i : players.keySet()){
+            Player p = players.get(i);
+            double newDistance = enemyPos.FindDistance(new Vector2(p.x, p.y));
+            if(newDistance < closestDistance){
+                closestDistance = newDistance;
+                closestID = p.ID;
+            }
+        }
+        if(closestID != -1){
+            return new Vector2(players.get(closestID).x, players.get(closestID).y);
+        }
+        else{
+            //if a player cant be found then the enemy can just stay still
+            return new Vector2(200, 200);
+        }
+    }
 }
 class Player{
     public int ID;

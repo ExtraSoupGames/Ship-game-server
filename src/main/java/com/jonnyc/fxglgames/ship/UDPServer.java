@@ -35,9 +35,9 @@ public class UDPServer implements Runnable{
         playerManager = new PlayerManager();
         enemyManager = new EnemyManager();
         boundaryManager = new BoundaryManager();
-        enemyManager.AddEnemy(1);
-        enemyManager.AddEnemy(2, 200);
-        enemyManager.AddEnemy(3, 100);
+        enemyManager.AddEnemy(1, playerManager);
+        enemyManager.AddEnemy(2, 200, playerManager);
+        enemyManager.AddEnemy(3, 100, playerManager);
         boundaryManager.AddBoundary(new Boundary(0, 500, 500, 0, -1,- 1));
         //create server
         server = new NetService().newUDPServer(55555);
