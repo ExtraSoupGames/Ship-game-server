@@ -1,6 +1,5 @@
 package com.jonnyc.fxglgames.ship;
-
-import com.almasb.fxgl.entity.Entity;
+import com.jonnyc.fxglgames.ship.Enemies.*;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -11,10 +10,10 @@ public class EnemyManager {
         enemies = new HashMap<>();
     }
     public void AddEnemy(int ID){
-        enemies.put(ID, new Enemy(ID, 50, 50, 100));
+        enemies.put(ID, new Leech(ID, 50, 50, 100));
     }
     public void AddEnemy(int ID, int Y){
-        enemies.put(ID, new Enemy(ID, 50, Y, 100));
+        enemies.put(ID, new Leech(ID, 50, Y, 100));
     }
     public void incomingData(String data) {
         data = data.substring(3);
@@ -30,7 +29,8 @@ public class EnemyManager {
 
         Integer IDToRemove = -1;
         for(Integer ID : enemies.keySet()){
-            if(enemies.get(ID).health <= 0){
+            Enemy e = enemies.get(ID);
+            if(e.GetIsDead()){
                 IDToRemove = ID;
             }
         }
@@ -49,39 +49,9 @@ public class EnemyManager {
         Set<Integer> IDs = enemies.keySet();
         for(Integer ID : IDs){
             Enemy e = enemies.get(ID);
-            outData.append(UDPServer.CompressInt(e.ID, 32));
-            outData.append(UDPServer.CompressPosition((int)e.x, (int)e.y));
+            outData.append(e.GetBroadcastData());
         }
         outData.append(UDPServer.LongToBinary(System.currentTimeMillis() - serverStartTime, 64));
         return outData.toString();
-    }
-}
-class Enemy{
-    int ID;
-    double x;
-    double y;
-    int health;
-    Enemy(int pID, int pX, int pY, int pHealth){
-        ID = pID;
-        x = pX;
-        y = pY;
-        health = pHealth;
-    }
-    void TakeHit(int damage){
-        health -= damage;
-    }
-    void UpdateMove(BoundaryManager boundaryManager){
-        //store current position
-        Vector2 currentLocation = new Vector2(x, y);
-        //apply potential movement
-        x+=1;
-        y+=1;
-
-        //calculate potential new location and check against collisions from boundary manager
-        Vector2 desiredLocation = new Vector2(x, y);
-        Vector2 finalLocation = boundaryManager.ApplyCollision(currentLocation, desiredLocation);
-        //apply finalised location
-        x = finalLocation.x;
-        y = finalLocation.y;
     }
 }
