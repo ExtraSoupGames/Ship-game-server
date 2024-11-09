@@ -9,7 +9,9 @@ public class Bobleech implements Enemy {
     int health;
     SceneManager sceneManager;
     double speed;
-
+    double updateTargetTimer; // updating target doesnt need to happen every frame so we have a timer
+    double updateTargetCooldown = 200; // time between target updates
+    Vector2 targetPlayerPos;
     public Bobleech(int pID, int pX, int pY, int pHealth, SceneManager pSceneManager) {
         ID = pID;
         x = pX;
@@ -17,6 +19,7 @@ public class Bobleech implements Enemy {
         health = pHealth;
         sceneManager = pSceneManager;
         speed = 3;
+        updateTargetTimer = 0;
     }
     @Override
     public boolean GetIsDead(){
@@ -31,8 +34,12 @@ public class Bobleech implements Enemy {
         //store current position
         Vector2 currentLocation = new Vector2(x, y);
         //apply potential movement
-        //find the position of the closest player
-        Vector2 targetPlayerPos = sceneManager.GetClosestPlayersPosition(currentLocation);
+        //find the position of the closest player if timer is up
+        updateTargetTimer += deltaTime;
+        if(updateTargetTimer > updateTargetCooldown) {
+            updateTargetTimer -= updateTargetCooldown;
+            targetPlayerPos = sceneManager.GetClosestPlayersPosition(currentLocation);
+        }
         //find the difference
         Vector2 direction = targetPlayerPos.Subtract(currentLocation);
         //normalise it
