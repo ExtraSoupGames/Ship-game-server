@@ -5,7 +5,7 @@ import com.jonnyc.fxglgames.ship.PlayerManager;
 import com.jonnyc.fxglgames.ship.UDPServer;
 import com.jonnyc.fxglgames.ship.Vector2;
 
-public class Leech implements Enemy {
+public class Bobleech implements Enemy {
     int ID;
     double x;
     double y;
@@ -13,7 +13,7 @@ public class Leech implements Enemy {
     PlayerManager playerManager;
     double speed;
 
-    public Leech(int pID, int pX, int pY, int pHealth, PlayerManager pPlayerManager) {
+    public Bobleech(int pID, int pX, int pY, int pHealth, PlayerManager pPlayerManager) {
         ID = pID;
         x = pX;
         y = pY;
