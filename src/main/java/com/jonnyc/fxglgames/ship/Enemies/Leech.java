@@ -30,25 +30,31 @@ public class Leech implements Enemy {
         health -= damage;
     }
     @Override
-    public void UpdateMove(BoundaryManager boundaryManager) {
+    public void UpdateMove(BoundaryManager boundaryManager, double deltaTime) {
         //store current position
         Vector2 currentLocation = new Vector2(x, y);
         //apply potential movement
+        //find the position of the closest player
         Vector2 targetPlayerPos = playerManager.GetClosestPlayersPosition(currentLocation);
+        //find the difference
         Vector2 direction = targetPlayerPos.Subtract(currentLocation);
+        //normalise it
         direction = direction.Normalise();
-        //calculate potential new location and check against collisions from boundary manager
+        //multiply by speed
         Vector2 desiredLocation = currentLocation.Add(direction.Multiply(speed));
+        //check for collision
         Vector2 finalLocation = boundaryManager.ApplyCollision(currentLocation, desiredLocation);
         //apply finalised location
         x = finalLocation.x;
         y = finalLocation.y;
-        System.out.println("Enemy final location: " + targetPlayerPos.x + " - "+ targetPlayerPos.y);
     }
     @Override
     public String GetBroadcastData(){
-        //TODO add enemy type to this
-        return UDPServer.CompressInt(ID, 32) +
-                UDPServer.CompressPosition((int) x, (int) y);
+        String out = "000" // enemy type code
+                + UDPServer.CompressInt(ID, 32)
+                + UDPServer.CompressPosition((int) x, (int) y)
+        // leech has no additional data so 2 bits of padding is needed
+                + "00";
+        return out;
     }
 }

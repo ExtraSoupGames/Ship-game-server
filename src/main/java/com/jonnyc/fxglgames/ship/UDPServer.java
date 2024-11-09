@@ -46,13 +46,16 @@ public class UDPServer implements Runnable{
         });
         //create thread to broadcast data
         var t = new Thread(() -> {
+            double lastFrame = System.currentTimeMillis();
             while(true){
                 try {
                     Thread.sleep(30);
+                    double frameDuration = System.currentTimeMillis() - lastFrame;
+                    lastFrame = System.currentTimeMillis();
                     if(playerManager.PlayersExist()){
                         server.broadcast(new Bundle(playerManager.GetLocationData(serverStartTime)));
                     }
-                    enemyManager.UpdateEnemies(boundaryManager);
+                    enemyManager.UpdateEnemies(boundaryManager, frameDuration);
                     server.broadcast(new Bundle(enemyManager.GetEnemyData(serverStartTime)));
                 } catch (Exception e) {
                     e.printStackTrace();

@@ -10,7 +10,7 @@ public class EnemyManager {
         enemies = new HashMap<>();
     }
     public void AddEnemy(int ID, PlayerManager pPlayerManager){
-        enemies.put(ID, new Leech(ID, 50, 50, 100, pPlayerManager));
+        enemies.put(ID, new Flopper(ID, 50, 50, 100, pPlayerManager));
     }
     public void AddEnemy(int ID, int Y, PlayerManager pPlayerManager){
         enemies.put(ID, new Leech(ID, 50, Y, 100, pPlayerManager));
@@ -38,9 +38,9 @@ public class EnemyManager {
             enemies.remove(IDToRemove);
         }
     }
-    public void UpdateEnemies(BoundaryManager boundaryManager){
+    public void UpdateEnemies(BoundaryManager boundaryManager, double deltaTime){
         for(Integer ID : enemies.keySet()){
-            enemies.get(ID).UpdateMove(boundaryManager);
+            enemies.get(ID).UpdateMove(boundaryManager, deltaTime);
         }
     }
     public String GetEnemyData(long serverStartTime){
