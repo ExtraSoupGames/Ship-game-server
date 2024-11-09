@@ -23,6 +23,7 @@ public class UDPServer implements Runnable{
     private PlayerManager playerManager;
     private EnemyManager enemyManager;
     private BoundaryManager boundaryManager;
+    private SceneManager sceneManager;
     Server<Bundle> server;
     long serverStartTime;
     public UDPServer(){
@@ -34,10 +35,11 @@ public class UDPServer implements Runnable{
         Logger.addOutput(new ConsoleOutput(), LoggerLevel.FATAL);
         playerManager = new PlayerManager();
         enemyManager = new EnemyManager();
+        sceneManager = new SceneManager(enemyManager, playerManager);
         boundaryManager = new BoundaryManager();
         enemyManager.AddEnemy(1, playerManager);
-        enemyManager.AddEnemy(2, 200, playerManager);
-        enemyManager.AddEnemy(3, 100, playerManager);
+        enemyManager.AddEnemy(2, 200, sceneManager);
+        enemyManager.AddEnemy(3, 100, sceneManager);
         boundaryManager.AddBoundary(new Boundary(0, 500, 500, 0, -1,- 1));
         //create server
         server = new NetService().newUDPServer(55555);

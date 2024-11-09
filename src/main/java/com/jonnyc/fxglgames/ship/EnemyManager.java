@@ -12,8 +12,8 @@ public class EnemyManager {
     public void AddEnemy(int ID, PlayerManager pPlayerManager){
         enemies.put(ID, new Flopper(ID, 50, 50, 100, pPlayerManager));
     }
-    public void AddEnemy(int ID, int Y, PlayerManager pPlayerManager){
-        enemies.put(ID, new Leech(ID, 50, Y, 100, pPlayerManager));
+    public void AddEnemy(int ID, int Y, SceneManager pSceneManager){
+        enemies.put(ID, new Bobleech(ID, 50, Y, 100, pSceneManager));
     }
     public void incomingData(String data) {
         data = data.substring(3);

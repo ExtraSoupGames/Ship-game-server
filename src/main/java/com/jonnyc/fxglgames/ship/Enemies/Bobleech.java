@@ -1,24 +1,21 @@
 package com.jonnyc.fxglgames.ship.Enemies;
 
-import com.jonnyc.fxglgames.ship.BoundaryManager;
-import com.jonnyc.fxglgames.ship.PlayerManager;
-import com.jonnyc.fxglgames.ship.UDPServer;
-import com.jonnyc.fxglgames.ship.Vector2;
+import com.jonnyc.fxglgames.ship.*;
 
 public class Bobleech implements Enemy {
     int ID;
     double x;
     double y;
     int health;
-    PlayerManager playerManager;
+    SceneManager sceneManager;
     double speed;
 
-    public Bobleech(int pID, int pX, int pY, int pHealth, PlayerManager pPlayerManager) {
+    public Bobleech(int pID, int pX, int pY, int pHealth, SceneManager pSceneManager) {
         ID = pID;
         x = pX;
         y = pY;
         health = pHealth;
-        playerManager = pPlayerManager;
+        sceneManager = pSceneManager;
         speed = 3;
     }
     @Override
@@ -35,7 +32,7 @@ public class Bobleech implements Enemy {
         Vector2 currentLocation = new Vector2(x, y);
         //apply potential movement
         //find the position of the closest player
-        Vector2 targetPlayerPos = playerManager.GetClosestPlayersPosition(currentLocation);
+        Vector2 targetPlayerPos = sceneManager.GetClosestPlayersPosition(currentLocation);
         //find the difference
         Vector2 direction = targetPlayerPos.Subtract(currentLocation);
         //normalise it
