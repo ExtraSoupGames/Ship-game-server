@@ -12,7 +12,7 @@ public class Vector2 {
     }
     //use pythagoras theorem to find distance to another vector
     public double FindDistance(Vector2 other){
-        return Math.sqrt(Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2));
+        return this.Subtract(other).Magnitude();
     }
     public Vector2 Subtract(Vector2 other){
         return new Vector2(x - other.x, y - other.y);

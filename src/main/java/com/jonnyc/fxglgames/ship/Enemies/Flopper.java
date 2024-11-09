@@ -89,7 +89,12 @@ public class Flopper implements Enemy{
     private void Flop(){
         state = FlopperState.AIRBORNE;
         Player targetedPlayer = sceneManager.GetRandomPlayer();
-        target = new Vector2(targetedPlayer.x, targetedPlayer.y);
+        if(targetedPlayer != null){
+            target = new Vector2(targetedPlayer.x, targetedPlayer.y);
+        }
+        else{
+            target = new Vector2(x, y); // if no players are present, flop onto itsself. this is fine
+        }
     }
     private void Land(){
         state = FlopperState.GROUNDED;

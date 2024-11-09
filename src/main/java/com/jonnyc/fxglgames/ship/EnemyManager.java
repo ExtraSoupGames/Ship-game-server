@@ -2,6 +2,7 @@ package com.jonnyc.fxglgames.ship;
 import com.jonnyc.fxglgames.ship.Enemies.*;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class EnemyManager {
@@ -53,5 +54,9 @@ public class EnemyManager {
         }
         outData.append(UDPServer.LongToBinary(System.currentTimeMillis() - serverStartTime, 64));
         return outData.toString();
+    }
+
+    public HashMap<Integer, Enemy> GetEnemies() {
+        return new HashMap<>(enemies);
     }
 }

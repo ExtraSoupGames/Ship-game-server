@@ -1,12 +1,14 @@
 package com.jonnyc.fxglgames.ship;
 
+import com.jonnyc.fxglgames.ship.Enemies.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 //allows all scene info to be accessed through one class instance
-//rather than passing around enemy maager and player manager seperately
+//rather than passing around enemy manager and player manager separately
 public class SceneManager {
     EnemyManager enemyManager;
     PlayerManager playerManager;
@@ -24,7 +26,7 @@ public class SceneManager {
         for(Integer i : players.keySet()){
             Player p = players.get(i);
             double newDistance = enemyPos.FindDistance(new Vector2(p.x, p.y));
-            if(newDistance < closestDistance){
+            if(newDistance < closestDistance) {
                 closestDistance = newDistance;
                 closestID = p.ID;
             }
@@ -40,8 +42,37 @@ public class SceneManager {
 
     public Player GetRandomPlayer() {
         HashMap<Integer, Player> players = playerManager.GetPlayers();
+        if(players.isEmpty()){
+            return null;
+        }
         List<Player> playersList = new ArrayList<Player>(players.values());
         int randomIndex = new Random().nextInt(playersList.size());
         return playersList.get(randomIndex);
+    }
+
+    public Vector2 GetDispersionForce(Vector2 currentLocation) {
+        int rangeToDisperseFrom = 20;
+        Vector2 directionSum = new Vector2(0.,0);
+        HashMap<Integer, Enemy> enemies = enemyManager.GetEnemies();
+        for(Integer ID : enemies.keySet()){
+
+            //TODO change this code to use a virtual function in Enemy to let enemy calculate its own dispersion forces
+            try{
+                Bobleech thisEnemy = (Bobleech)enemies.get(ID);
+                //calculate the difference between the enemy dispersing and the enemy close to it
+                Vector2 difference = thisEnemy.GetLocation().Subtract(currentLocation);
+                //only for enemies that are close (within 5)
+                if(difference.Magnitude() < rangeToDisperseFrom){
+                    //invert the magnitude of the difference(further away enemies have less of an effect)
+                    difference.Multiply(rangeToDisperseFrom / difference.Magnitude());
+                    //add this to the sum
+                    directionSum = directionSum.Add(thisEnemy.GetLocation().Subtract(currentLocation));
+                }
+            }
+            catch(ClassCastException ignored){
+
+            }
+        }
+        return directionSum;
     }
 }

@@ -20,6 +20,7 @@ public class Bobleech implements Enemy {
         sceneManager = pSceneManager;
         speed = 3;
         updateTargetTimer = 0;
+        targetPlayerPos = new Vector2(x, y); // until it finds a player it will just stay still. this is fine
     }
     @Override
     public boolean GetIsDead(){
@@ -42,10 +43,16 @@ public class Bobleech implements Enemy {
         }
         //find the difference
         Vector2 direction = targetPlayerPos.Subtract(currentLocation);
+        if(direction.Magnitude() < 1){
+            //if very close to the target then just stay still
+            return;
+        }
+        Vector2 dispersionForce = sceneManager.GetDispersionForce(currentLocation).Multiply(-2);
+        Vector2 adjustedDirection = direction.Add(dispersionForce);
         //normalise it
-        direction = direction.Normalise();
+        adjustedDirection = adjustedDirection.Normalise();
         //multiply by speed
-        Vector2 desiredLocation = currentLocation.Add(direction.Multiply(speed));
+        Vector2 desiredLocation = currentLocation.Add(adjustedDirection.Multiply(speed));
         //check for collision
         Vector2 finalLocation = boundaryManager.ApplyCollision(currentLocation, desiredLocation);
         //apply finalised location
@@ -60,5 +67,8 @@ public class Bobleech implements Enemy {
         // leech has no additional data so 2 bits of padding is needed
                 + "00";
         return out;
+    }
+    public Vector2 GetLocation(){
+        return new Vector2(x, y);
     }
 }
