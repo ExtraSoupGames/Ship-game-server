@@ -37,12 +37,12 @@ public class UDPServer implements Runnable{
         enemyManager = new EnemyManager();
         sceneManager = new SceneManager(enemyManager, playerManager);
         boundaryManager = new BoundaryManager();
-        enemyManager.AddEnemy(1, sceneManager);
-        enemyManager.AddEnemy(2, 250, sceneManager);
-        enemyManager.AddEnemy(3, 200, sceneManager);
-        enemyManager.AddEnemy(4, 150, sceneManager);
-        enemyManager.AddEnemy(5, 100, sceneManager);
-        enemyManager.AddEnemy(6, 50, sceneManager);
+        enemyManager.AddBobleech(1, 50, 50, sceneManager);
+        enemyManager.AddBobleech(2, 70, 50, sceneManager);
+        enemyManager.AddBobleech(3, 90, 50, sceneManager);
+        enemyManager.AddBobleech(4, 110, 50, sceneManager);
+        enemyManager.AddClingabing(5, 100, 100, sceneManager);
+        enemyManager.AddFlopper(6, 200, 200, sceneManager);
         boundaryManager.AddBoundary(new Boundary(0, 500, 500, 0, -1,- 1));
         //create server
         server = new NetService().newUDPServer(55555);
@@ -185,7 +185,13 @@ class Handler implements MessageHandler<Bundle> {
                     packetData[i / 7] = (byte) (-128 - Byte.parseByte(data.substring(i, i + 7) + "1", 2));
                 }
                 else{
-                    packetData[i / 7] = Byte.parseByte(data.substring(i, i + 7) + "1", 2);
+                    try{
+                        packetData[i / 7] = Byte.parseByte(data.substring(i, i + 7) + "1", 2);
+                    }
+                    catch(NumberFormatException e){
+                        //stop
+                        System.out.println(e.getMessage());
+                    }
                 }
             }
             return packetData;

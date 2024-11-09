@@ -33,7 +33,7 @@ public class Bobleech implements Enemy {
     @Override
     public void UpdateMove(BoundaryManager boundaryManager, double deltaTime) {
         //store current position
-        Vector2 currentLocation = new Vector2(x, y);
+        Vector2 currentLocation = GetLocation();
         //apply potential movement
         //find the position of the closest player if timer is up
         updateTargetTimer += deltaTime;

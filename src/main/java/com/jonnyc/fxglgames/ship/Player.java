@@ -17,4 +17,7 @@ public class Player {
         x = 0;
         y = 0;
     }
+    public Vector2 GetLocation(){
+        return new Vector2(x, y);
+    }
 }

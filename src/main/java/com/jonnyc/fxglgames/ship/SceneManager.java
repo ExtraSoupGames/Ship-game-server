@@ -43,7 +43,7 @@ public class SceneManager {
     public Player GetRandomPlayer() {
         HashMap<Integer, Player> players = playerManager.GetPlayers();
         if(players.isEmpty()){
-            return null;
+            return new Player();
         }
         List<Player> playersList = new ArrayList<Player>(players.values());
         int randomIndex = new Random().nextInt(playersList.size());

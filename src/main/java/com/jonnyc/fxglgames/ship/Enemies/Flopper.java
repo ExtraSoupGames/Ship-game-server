@@ -49,7 +49,7 @@ public class Flopper implements Enemy{
                 }
                 break;
             case AIRBORNE:
-                Vector2 position = new Vector2(x, y);
+                Vector2 position = GetLocation();
                 Vector2 difference = target.Subtract(position);
                 Vector2 movementDirection = difference.Normalise();
                 Vector2 finalMovement = movementDirection.Multiply(flyingSpeed);

@@ -10,11 +10,14 @@ public class EnemyManager {
     public EnemyManager(){
         enemies = new HashMap<>();
     }
-    public void AddEnemy(int ID, SceneManager pSceneManager){
-        enemies.put(ID, new Flopper(ID, 50, 50, 100, pSceneManager));
+    public void AddBobleech(int ID, int x, int y, SceneManager pSceneManager){
+        enemies.put(ID, new Bobleech(ID, x, y, 100, pSceneManager));
     }
-    public void AddEnemy(int ID, int Y, SceneManager pSceneManager){
-        enemies.put(ID, new Bobleech(ID, 50, Y, 100, pSceneManager));
+    public void AddFlopper(int ID, int x, int Y, SceneManager pSceneManager){
+        enemies.put(ID, new Flopper(ID, x, Y, 100, pSceneManager));
+    }
+    public void AddClingabing(int ID, int x, int y, SceneManager pSceneManager){
+        enemies.put(ID, new Clingabing(ID, x, y, 100, pSceneManager));
     }
     public void incomingData(String data) {
         data = data.substring(3);
