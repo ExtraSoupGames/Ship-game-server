@@ -9,8 +9,8 @@ public class EnemyManager {
     public EnemyManager(){
         enemies = new HashMap<>();
     }
-    public void AddEnemy(int ID, PlayerManager pPlayerManager){
-        enemies.put(ID, new Flopper(ID, 50, 50, 100, pPlayerManager));
+    public void AddEnemy(int ID, SceneManager pSceneManager){
+        enemies.put(ID, new Flopper(ID, 50, 50, 100, pSceneManager));
     }
     public void AddEnemy(int ID, int Y, SceneManager pSceneManager){
         enemies.put(ID, new Bobleech(ID, 50, Y, 100, pSceneManager));

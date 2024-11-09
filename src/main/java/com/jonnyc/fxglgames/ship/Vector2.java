@@ -24,4 +24,7 @@ public class Vector2 {
     public Vector2 Multiply(double factor){
         return new Vector2(x * factor, y * factor);
     }
+    public double Magnitude(){
+        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    }
 }

@@ -1,6 +1,9 @@
 package com.jonnyc.fxglgames.ship;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 //allows all scene info to be accessed through one class instance
 //rather than passing around enemy maager and player manager seperately
@@ -33,5 +36,12 @@ public class SceneManager {
             //if a player cant be found then the enemy can just stay still
             return new Vector2(200, 200);
         }
+    }
+
+    public Player GetRandomPlayer() {
+        HashMap<Integer, Player> players = playerManager.GetPlayers();
+        List<Player> playersList = new ArrayList<Player>(players.values());
+        int randomIndex = new Random().nextInt(playersList.size());
+        return playersList.get(randomIndex);
     }
 }
