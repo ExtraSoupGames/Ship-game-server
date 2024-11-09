@@ -47,7 +47,7 @@ public class Bobleech implements Enemy {
             //if very close to the target then just stay still
             return;
         }
-        Vector2 dispersionForce = sceneManager.GetDispersionForce(currentLocation).Multiply(-2);
+        Vector2 dispersionForce = sceneManager.GetDispersionForce(currentLocation).Multiply(-1);
         Vector2 adjustedDirection = direction.Add(dispersionForce);
         //normalise it
         adjustedDirection = adjustedDirection.Normalise();
@@ -70,5 +70,8 @@ public class Bobleech implements Enemy {
     }
     public Vector2 GetLocation(){
         return new Vector2(x, y);
+    }
+    public double GetDispersionWeight(){
+        return 0.5;
     }
 }

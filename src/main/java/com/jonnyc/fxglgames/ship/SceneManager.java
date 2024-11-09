@@ -55,22 +55,11 @@ public class SceneManager {
         Vector2 directionSum = new Vector2(0.,0);
         HashMap<Integer, Enemy> enemies = enemyManager.GetEnemies();
         for(Integer ID : enemies.keySet()){
-
-            //TODO change this code to use a virtual function in Enemy to let enemy calculate its own dispersion forces
-            try{
-                Bobleech thisEnemy = (Bobleech)enemies.get(ID);
-                //calculate the difference between the enemy dispersing and the enemy close to it
-                Vector2 difference = thisEnemy.GetLocation().Subtract(currentLocation);
-                //only for enemies that are close (within 5)
-                if(difference.Magnitude() < rangeToDisperseFrom){
-                    //invert the magnitude of the difference(further away enemies have less of an effect)
-                    difference.Multiply(rangeToDisperseFrom / difference.Magnitude());
-                    //add this to the sum
-                    directionSum = directionSum.Add(thisEnemy.GetLocation().Subtract(currentLocation));
-                }
-            }
-            catch(ClassCastException ignored){
-
+            Enemy thisEnemy = enemies.get(ID);
+            Vector2 difference = thisEnemy.GetLocation().Subtract(currentLocation).Multiply(thisEnemy.GetDispersionWeight());
+            if(difference.Magnitude() < rangeToDisperseFrom && difference.Magnitude() != 0){
+                Vector2 direction = difference.Multiply(rangeToDisperseFrom / difference.Magnitude());
+                directionSum = directionSum.Add(direction);
             }
         }
         return directionSum;

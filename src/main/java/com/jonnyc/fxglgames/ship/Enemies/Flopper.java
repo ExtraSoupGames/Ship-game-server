@@ -99,4 +99,12 @@ public class Flopper implements Enemy{
     private void Land(){
         state = FlopperState.GROUNDED;
     }
+
+    @Override
+    public Vector2 GetLocation() {
+        return new Vector2(x, y);
+    }
+    public double GetDispersionWeight(){
+        return 0;
+    }
 }
