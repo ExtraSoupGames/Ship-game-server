@@ -20,7 +20,6 @@ public class EnemyManager {
         enemies.put(ID, new Clingabing(ID, x, y, 100, pSceneManager));
     }
     public void incomingData(String data) {
-        data = data.substring(3);
         int enemyID = UDPServer.DecompressInt(data.substring(0, 32));
         int enemyDamage = UDPServer.DecompressInt(data.substring(32, 64));
         int enemyKnockback = UDPServer.DecompressInt(data.substring(64, 96));
@@ -48,7 +47,7 @@ public class EnemyManager {
         }
     }
     public String GetEnemyData(long serverStartTime){
-        StringBuilder outData = new StringBuilder("100");
+        StringBuilder outData = new StringBuilder("1000");
         //add data of enemies
         Set<Integer> IDs = enemies.keySet();
         for(Integer ID : IDs){

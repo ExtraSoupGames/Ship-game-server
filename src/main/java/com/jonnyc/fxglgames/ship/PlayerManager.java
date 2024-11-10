@@ -8,7 +8,6 @@ public class PlayerManager{
         players = new HashMap<>();
     }
     public void incomingData(String data){
-        data = data.substring(3); // remove the header
         int clientID = UDPServer.DecompressInt(data.substring(0, 32));
         int[] xy = UDPServer.DecompressPosition(data.substring(32, 48));
         PlayerState state = UDPServer.DecompressPlayerState(data.substring(48, 55));
@@ -25,7 +24,7 @@ public class PlayerManager{
         return players.size() > 0;
     }
     public String GetLocationData(long serverStartTime){
-        StringBuilder outData = new StringBuilder("011");
+        StringBuilder outData = new StringBuilder("0101");
         for(Integer i : players.keySet()){
             outData.append(UDPServer.CompressInt(i, 32));
             Player p = players.get(i);

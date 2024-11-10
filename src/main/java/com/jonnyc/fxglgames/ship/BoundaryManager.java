@@ -20,8 +20,7 @@ public class BoundaryManager {
         boundaries.add(b);
     }
     public String GetBoundaryData(long serverStartTime){
-        //TODO Write Boundary broadcasting into client joining
-        StringBuilder out = new StringBuilder("001");
+        StringBuilder out = new StringBuilder("0011");
         for (Boundary b : boundaries){
             out.append(b.GetDataForBroadcast());
         }

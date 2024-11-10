@@ -14,6 +14,8 @@ import com.almasb.fxgl.logging.LoggerLevel;
 import com.almasb.fxgl.net.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -76,6 +78,18 @@ public class UDPServer implements Runnable{
     }
 
     //region UpdateFunctions
+    public void SendNetworkInfo(){
+        String addressString;
+        try {
+            InetAddress address = InetAddress.getLocalHost();
+            addressString = address.getHostAddress();
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
+        if(addressString != null){
+            server.broadcast(new Bundle("0001" + CompressAddress(addressString) + CompressInt(55555, 32)));
+        }
+    }
     public void SendBoundaryData(){
         String out = boundaryManager.GetBoundaryData(serverStartTime);
         server.broadcast(new Bundle(out));
@@ -128,6 +142,14 @@ public class UDPServer implements Runnable{
         returnValues[0] = Integer.parseUnsignedInt(binaryIn.substring(0, 8), 2) * 4;
         returnValues[1] = Integer.parseUnsignedInt(binaryIn.substring(8, 16), 2) * 4;
         return returnValues;
+    }
+    public static String CompressAddress(String address){
+        String outBinary = "";
+        for(int i = 0; i < address.length(); i++){
+            char addressChar = address.charAt(i);
+            outBinary = outBinary + Integer.toBinaryString((byte)addressChar);
+        }
+        return PadBinary(outBinary, 512);
     }
     //endregion Compression
 }
@@ -185,13 +207,7 @@ class Handler implements MessageHandler<Bundle> {
                     packetData[i / 7] = (byte) (-128 - Byte.parseByte(data.substring(i, i + 7) + "1", 2));
                 }
                 else{
-                    try{
-                        packetData[i / 7] = Byte.parseByte(data.substring(i, i + 7) + "1", 2);
-                    }
-                    catch(NumberFormatException e){
-                        //stop
-                        System.out.println(e.getMessage());
-                    }
+                    packetData[i / 7] = Byte.parseByte(data.substring(i, i + 7) + "1", 2);
                 }
             }
             return packetData;
@@ -203,15 +219,19 @@ class Handler implements MessageHandler<Bundle> {
             return;
         }
         String decompressedData = bundle.getName();
-        String messageType = decompressedData.substring(0, 3); // first 3 bits of message denote message data
+        String messageType = decompressedData.substring(0, 4); // first 4 bits of message denote message data
+        decompressedData = decompressedData.substring(4); // process only the rest of the data
         switch (messageType){
-            case "010":
+            case "0000":
+                server.SendNetworkInfo();
+                break;
+            case "0100":
                 playerManager.incomingData(decompressedData);
                 break;
-            case "101":
+            case "0110":
                 enemyManager.incomingData(decompressedData);
                 break;
-            case "000":
+            case "0010":
                 server.SendBoundaryData();
                 break;
 
