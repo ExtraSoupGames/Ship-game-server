@@ -76,7 +76,15 @@ public class UDPServer implements Runnable{
         //start server which will listen for incoming data
         server.startTask().run();
     }
-
+//region ImportantMessages
+    public void SendImportantMessageConfirmation(String messageIn){
+        String returnHeader = "1010"; // all confirmation messages have the same header as each important message
+        //has as unique client id and message id so the header is only needed to signify that it is an important message confirmation
+        String messageID = messageIn.substring(0, 32);
+        String clientID = messageIn.substring(32, 64);
+        server.broadcast(new Bundle(returnHeader.concat(messageID.concat(clientID))));
+    }
+    //endregion ImportantMessages
     //region UpdateFunctions
     public void SendNetworkInfo(){
         String addressString;
@@ -95,7 +103,7 @@ public class UDPServer implements Runnable{
         server.broadcast(new Bundle(out));
     }
 
-    //endregion
+    //endregion UpdateFunctions
     //region Compression
     public static String CompressPlayerState(PlayerState state){
         return CompressInt(state.direction, 3) +
@@ -233,6 +241,9 @@ class Handler implements MessageHandler<Bundle> {
                 break;
             case "0010":
                 server.SendBoundaryData();
+                break;
+            case "1001":
+                server.SendImportantMessageConfirmation(decompressedData);
                 break;
 
         }
