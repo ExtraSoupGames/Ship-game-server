@@ -20,7 +20,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-
+class ImportantMessage{
+    String binaryContents;
+    int messageID;
+    ImportantMessage(String pBinaryContents, int pMessageID){
+        binaryContents = pBinaryContents;
+        messageID = pMessageID;
+    }
+    String GetMessage(){
+        String header = binaryContents.substring(0, 4);
+        String msgID = UDPServer.CompressInt(messageID, 32);
+        String messageData = binaryContents.substring(4);
+        return header + msgID + messageData;
+    }
+}
 public class UDPServer implements Runnable{
     private PlayerManager playerManager;
     private EnemyManager enemyManager;
@@ -28,6 +41,10 @@ public class UDPServer implements Runnable{
     private SceneManager sceneManager;
     Server<Bundle> server;
     long serverStartTime;
+    double importantMessageCooldown;
+    double importantMessageTimer;
+    int importantMessageID = 0;
+    ArrayList<ImportantMessage> importantMessages;
     public UDPServer(){
     }
     @Override
@@ -46,6 +63,7 @@ public class UDPServer implements Runnable{
         enemyManager.AddClingabing(5, 100, 100, sceneManager);
         enemyManager.AddFlopper(6, 200, 200, sceneManager);
         boundaryManager.AddBoundary(new Boundary(0, 500, 500, 0, -1,- 1));
+        importantMessages = new ArrayList<ImportantMessage>();
         //create server
         server = new NetService().newUDPServer(55555);
         server.setOnConnected(connection -> {
@@ -64,6 +82,12 @@ public class UDPServer implements Runnable{
                     }
                     enemyManager.UpdateEnemies(boundaryManager, frameDuration);
                     server.broadcast(new Bundle(enemyManager.GetEnemyData(serverStartTime)));
+                    importantMessageTimer += frameDuration;
+                    if(importantMessageTimer > importantMessageCooldown){
+                        importantMessageTimer -= importantMessageCooldown;
+                        SendImportantMessages();
+                        SendImportantMessage("110011111111111111");
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -77,12 +101,35 @@ public class UDPServer implements Runnable{
         server.startTask().run();
     }
 //region ImportantMessages
+    private int GetNextMessageID(){
+        importantMessageID++;
+        return importantMessageID - 1;
+    }
+    public void SendImportantMessage(String binaryContents){
+        ImportantMessage messageToSend = new ImportantMessage(binaryContents, GetNextMessageID());
+        importantMessages.add(messageToSend);
+    }
+    public void SendImportantMessages(){
+        ArrayList<ImportantMessage> messages = (ArrayList<ImportantMessage>) importantMessages.clone();
+        for(ImportantMessage im : messages){
+            server.broadcast(new Bundle(im.GetMessage()));
+        }
+    }
     public void SendImportantMessageConfirmation(String messageIn){
         String returnHeader = "1010"; // all confirmation messages have the same header as each important message
         //has as unique client id and message id so the header is only needed to signify that it is an important message confirmation
         String messageID = messageIn.substring(0, 32);
         String clientID = messageIn.substring(32, 64);
         server.broadcast(new Bundle(returnHeader.concat(messageID.concat(clientID))));
+    }
+    public void ReceiveImportantMessageConfirmation(String decompressedData) {
+        int messageID = DecompressInt(decompressedData.substring(0, 32));
+        for(ImportantMessage msg : importantMessages){
+            if(msg.messageID == messageID){
+                importantMessages.remove(msg);
+                return;
+            }
+        }
     }
     //endregion ImportantMessages
     //region UpdateFunctions
@@ -245,6 +292,8 @@ class Handler implements MessageHandler<Bundle> {
             case "1001":
                 server.SendImportantMessageConfirmation(decompressedData);
                 break;
+            case "1011":
+                server.ReceiveImportantMessageConfirmation(decompressedData);
 
         }
     }
