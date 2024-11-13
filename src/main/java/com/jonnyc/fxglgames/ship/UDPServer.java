@@ -23,15 +23,21 @@ import java.util.Collections;
 class ImportantMessage{
     String binaryContents;
     int messageID;
-    ImportantMessage(String pBinaryContents, int pMessageID){
+    ArrayList<Integer> clientIDs;
+    ImportantMessage(String pBinaryContents, int pMessageID, ArrayList<Integer> pClientIDs){
         binaryContents = pBinaryContents;
         messageID = pMessageID;
+        clientIDs = pClientIDs;
     }
     String GetMessage(){
         String header = binaryContents.substring(0, 4);
         String msgID = UDPServer.CompressInt(messageID, 32);
         String messageData = binaryContents.substring(4);
         return header + msgID + messageData;
+    }
+    boolean ReceiveConfirmation(Integer pClientID){
+        clientIDs.remove(pClientID);
+        return clientIDs.isEmpty();
     }
 }
 public class UDPServer implements Runnable{
@@ -64,6 +70,7 @@ public class UDPServer implements Runnable{
         enemyManager.AddFlopper(6, 200, 200, sceneManager);
         boundaryManager.AddBoundary(new Boundary(0, 500, 500, 0, -1,- 1));
         importantMessages = new ArrayList<ImportantMessage>();
+        importantMessageCooldown = 500;
         //create server
         server = new NetService().newUDPServer(55555);
         server.setOnConnected(connection -> {
@@ -87,6 +94,7 @@ public class UDPServer implements Runnable{
                         importantMessageTimer -= importantMessageCooldown;
                         SendImportantMessages();
                         SendImportantMessage("110011111111111111");
+                        System.out.println("Message count: " + importantMessages.size());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -106,7 +114,11 @@ public class UDPServer implements Runnable{
         return importantMessageID - 1;
     }
     public void SendImportantMessage(String binaryContents){
-        ImportantMessage messageToSend = new ImportantMessage(binaryContents, GetNextMessageID());
+        if(!playerManager.PlayersExist()){
+            System.out.println("Attempting to send an important message, but no players to send it to :( so lonely");
+            return;
+        }
+        ImportantMessage messageToSend = new ImportantMessage(binaryContents, GetNextMessageID(), playerManager.GetClientIDs());
         importantMessages.add(messageToSend);
     }
     public void SendImportantMessages(){
@@ -124,9 +136,12 @@ public class UDPServer implements Runnable{
     }
     public void ReceiveImportantMessageConfirmation(String decompressedData) {
         int messageID = DecompressInt(decompressedData.substring(0, 32));
+        int clientID = DecompressInt(decompressedData.substring(32, 64));
         for(ImportantMessage msg : importantMessages){
             if(msg.messageID == messageID){
-                importantMessages.remove(msg);
+                if(msg.ReceiveConfirmation(clientID)){
+                    importantMessages.remove(msg);
+                }
                 return;
             }
         }

@@ -1,5 +1,6 @@
 package com.jonnyc.fxglgames.ship;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PlayerManager{
@@ -37,5 +38,13 @@ public class PlayerManager{
 
     public HashMap<Integer, Player> GetPlayers(){
         return new HashMap<>(players);
+    }
+
+    public ArrayList<Integer> GetClientIDs(){
+        ArrayList<Integer> clientIDs = new ArrayList<>();
+        for(Integer i : players.keySet()){
+            clientIDs.add(i);
+        }
+        return clientIDs;
     }
 }
