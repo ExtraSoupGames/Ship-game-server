@@ -68,7 +68,11 @@ public class UDPServer implements Runnable{
         enemyManager.AddBobleech(4, 110, 50, sceneManager);
         enemyManager.AddClingabing(5, 100, 100, sceneManager);
         enemyManager.AddFlopper(6, 200, 200, sceneManager);
-        boundaryManager.AddBoundary(new Boundary(0, 500, 500, 0, -1,- 1));
+        boundaryManager.AddBoundary(new Boundary(50, 50, 550, 50, 0,1));
+        boundaryManager.AddBoundary(new Boundary(550, 50, 750, 250, -1,1));
+        boundaryManager.AddBoundary(new Boundary(750, 250, 550, 450, -1,-1));
+        boundaryManager.AddBoundary(new Boundary(550, 450, 50, 450, 0,-1));
+        boundaryManager.AddBoundary(new Boundary(50, 450, 50, 50, 1,0));
         importantMessages = new ArrayList<ImportantMessage>();
         importantMessageCooldown = 500;
         //create server
@@ -106,7 +110,7 @@ public class UDPServer implements Runnable{
         //start server which will listen for incoming data
         server.startTask().run();
     }
-//region ImportantMessages
+    //region ImportantMessages
     private int GetNextMessageID(){
         importantMessageID++;
         return importantMessageID - 1;
