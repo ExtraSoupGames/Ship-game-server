@@ -93,8 +93,6 @@ public class UDPServer implements Runnable{
                     if(importantMessageTimer > importantMessageCooldown){
                         importantMessageTimer -= importantMessageCooldown;
                         SendImportantMessages();
-                        SendImportantMessage("110011111111111111");
-                        System.out.println("Message count: " + importantMessages.size());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
