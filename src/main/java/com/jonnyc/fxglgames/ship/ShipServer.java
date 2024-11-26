@@ -38,16 +38,16 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 import java.util.ArrayList;
 import java.util.Map;
 
-
 public class ShipServer extends GameApplication{
     @Override
     protected void initSettings(GameSettings settings) {
-        settings.setTitle("ShipGameServer");
+        settings.setTitle(serverName);
         settings.setVersion("1.0");
         settings.setFontUI("pong.ttf");
         settings.setApplicationMode(ApplicationMode.RELEASE);
     }
     UDPServer server;
+    static String serverName = "DefaultServerName";
 
     @Override
     protected void initPhysics(){
@@ -79,6 +79,9 @@ public class ShipServer extends GameApplication{
     }
 
     public static void main(String[] args) {
+        if(args.length > 0){
+            serverName = args[0];
+        }
         launch(args);
     }
 }

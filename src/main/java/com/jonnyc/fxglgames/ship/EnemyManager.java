@@ -2,7 +2,6 @@ package com.jonnyc.fxglgames.ship;
 import com.jonnyc.fxglgames.ship.Enemies.*;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 public class EnemyManager {
