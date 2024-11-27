@@ -311,7 +311,7 @@ class Handler implements MessageHandler<Bundle> {
                 break;
             case "1011":
                 server.ReceiveImportantMessageConfirmation(decompressedData);
-
+                break;
         }
     }
 }

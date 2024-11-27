@@ -17,7 +17,10 @@ public class Flopper implements Enemy{
     Vector2 target;
     double groundedTimer; // flopper lies on the ground for a while before flopping again
     double groundedDuration = 3000; // the time it lies down for before flopping
-    double flyingSpeed = 8;
+    double flightDuration = 1;
+    double timeSinceFlop = 0;
+    Vector2 flopStart;
+    double flightHeight = 200;
     public Flopper(int pID, int pX, int pY, int pHealth, SceneManager pSceneManager){
         ID = pID;
         x = pX;
@@ -49,16 +52,21 @@ public class Flopper implements Enemy{
                 }
                 break;
             case AIRBORNE:
-                Vector2 position = GetLocation();
-                Vector2 difference = target.Subtract(position);
-                Vector2 movementDirection = difference.Normalise();
-                Vector2 finalMovement = movementDirection.Multiply(flyingSpeed);
-                if(difference.Magnitude() < finalMovement.Magnitude()){
+                timeSinceFlop += deltaTime / 1000;
+                double flightProgress = timeSinceFlop / flightDuration;
+                Vector2 flightVector = target.Subtract(flopStart);
+                Vector2 linearPosition = flopStart.Add(flightVector.Multiply(flightProgress));
+
+                double quadraticX = ((timeSinceFlop / flightDuration) * 2) - 1;
+                double flightOffset = (-flightHeight * (quadraticX * quadraticX)) + flightHeight;
+
+                Vector2 finalPos = new Vector2(linearPosition.x, linearPosition.y - flightOffset);
+                if(timeSinceFlop > flightDuration){
                     //if the distance to the target is less than the distance it would move in one frame
                     Land();
                 }
-                x += finalMovement.x;
-                y += finalMovement.y;
+                x = finalPos.x;
+                y = finalPos.y;
                 break;
             case SPAWNING:
                 state = FlopperState.GROUNDED;
@@ -89,6 +97,8 @@ public class Flopper implements Enemy{
     private void Flop(){
         state = FlopperState.AIRBORNE;
         Player targetedPlayer = sceneManager.GetRandomPlayer();
+        flopStart = GetLocation();
+        timeSinceFlop = 0;
         if(targetedPlayer != null){
             target = new Vector2(targetedPlayer.x, targetedPlayer.y);
         }
