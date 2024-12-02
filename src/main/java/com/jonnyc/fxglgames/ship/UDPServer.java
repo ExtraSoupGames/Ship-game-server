@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+
+import static com.jonnyc.fxglgames.ship.ShipServer.serverName;
+
 class ImportantMessage{
     String binaryContents;
     int messageID;
@@ -159,7 +162,9 @@ public class UDPServer implements Runnable{
             throw new RuntimeException(e);
         }
         if(addressString != null){
-            server.broadcast(new Bundle("0001" + CompressAddress(addressString) + CompressInt(55555, 32)));
+            server.broadcast(new Bundle("0001" + CompressAddress(addressString)
+                    + CompressInt(55555, 32)
+                    + CompressString(serverName, 512)));
         }
     }
     public void SendBoundaryData(){
@@ -216,12 +221,20 @@ public class UDPServer implements Runnable{
         return returnValues;
     }
     public static String CompressAddress(String address){
-        String outBinary = "";
+        StringBuilder outBinary = new StringBuilder();
         for(int i = 0; i < address.length(); i++){
             char addressChar = address.charAt(i);
-            outBinary = outBinary + Integer.toBinaryString((byte)addressChar);
+            outBinary.append(Integer.toBinaryString((byte) addressChar));
         }
-        return PadBinary(outBinary, 512);
+        return PadBinary(outBinary.toString(), 512);
+    }
+    public static String CompressString(String stringToCompress, int outLength){
+        StringBuilder outBinary = new StringBuilder();
+        byte[] stringBytes = stringToCompress.getBytes();
+        for (byte stringByte : stringBytes) {
+            outBinary.append(PadBinary(Integer.toBinaryString(stringByte), 8));
+        }
+        return PadBinary(outBinary.toString(), outLength);
     }
     //endregion Compression
 }
