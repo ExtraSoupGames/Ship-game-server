@@ -162,6 +162,8 @@ public class UDPServer implements Runnable{
             throw new RuntimeException(e);
         }
         if(addressString != null){
+            System.out.println("address was: " + addressString);
+            System.out.println("compressed to: " + CompressAddress(addressString));
             server.broadcast(new Bundle("0001" + CompressAddress(addressString)
                     + CompressInt(55555, 32)
                     + CompressString(serverName, 512)));
@@ -222,11 +224,11 @@ public class UDPServer implements Runnable{
     }
     public static String CompressAddress(String address){
         StringBuilder outBinary = new StringBuilder();
-        for(int i = 0; i < address.length(); i++){
-            char addressChar = address.charAt(i);
-            outBinary.append(Integer.toBinaryString((byte) addressChar));
+        byte[] stringBytes = address.getBytes();
+        for (byte stringByte : stringBytes) {
+            outBinary.append(PadBinary(Integer.toBinaryString(stringByte), 8));
         }
-        return PadBinary(outBinary.toString(), 512);
+        return PadBinary(outBinary.toString(), 128);
     }
     public static String CompressString(String stringToCompress, int outLength){
         StringBuilder outBinary = new StringBuilder();
