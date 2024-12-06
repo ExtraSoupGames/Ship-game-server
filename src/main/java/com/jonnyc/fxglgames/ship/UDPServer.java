@@ -48,23 +48,20 @@ public class UDPServer implements Runnable{
     private EnemyManager enemyManager;
     private BoundaryManager boundaryManager;
     private SceneManager sceneManager;
+    private GameState gameState;
+    private StartingPad startPad;
     Server<Bundle> server;
     long serverStartTime;
     double importantMessageCooldown;
     double importantMessageTimer;
     int importantMessageID = 0;
+    int port = 55555;
     ArrayList<ImportantMessage> importantMessages;
     public UDPServer(){
     }
-    @Override
-    public void run() {
-        serverStartTime = System.currentTimeMillis();
-        Logger.configure(new LoggerConfig());
-        Logger.addOutput(new ConsoleOutput(), LoggerLevel.FATAL);
-        playerManager = new PlayerManager();
-        enemyManager = new EnemyManager();
-        sceneManager = new SceneManager(enemyManager, playerManager);
-        boundaryManager = new BoundaryManager();
+    private void StartGame(){
+        gameState = GameState.GameRunning;
+        SendImportantMessage("1101"); // game start code
         enemyManager.AddBobleech(1, 50, 50, sceneManager);
         enemyManager.AddBobleech(2, 70, 50, sceneManager);
         enemyManager.AddBobleech(3, 90, 50, sceneManager);
@@ -76,10 +73,22 @@ public class UDPServer implements Runnable{
         boundaryManager.AddBoundary(new Boundary(750, 250, 550, 450, -1,-1));
         boundaryManager.AddBoundary(new Boundary(550, 450, 50, 450, 0,-1));
         boundaryManager.AddBoundary(new Boundary(50, 450, 50, 50, 1,0));
+    }
+    @Override
+    public void run() {
+        serverStartTime = System.currentTimeMillis();
+        gameState = GameState.StartRoom;
+        Logger.configure(new LoggerConfig());
+        Logger.addOutput(new ConsoleOutput(), LoggerLevel.FATAL);
+        playerManager = new PlayerManager();
+        enemyManager = new EnemyManager();
+        sceneManager = new SceneManager(enemyManager, playerManager);
+        startPad = new StartingPad();
+        boundaryManager = new BoundaryManager();
         importantMessages = new ArrayList<ImportantMessage>();
         importantMessageCooldown = 500;
         //create server
-        server = new NetService().newUDPServer(55555);
+        server = new NetService().newUDPServer(port);
         server.setOnConnected(connection -> {
             connection.addMessageHandler(new Handler(playerManager, enemyManager, this));
         });
@@ -91,11 +100,28 @@ public class UDPServer implements Runnable{
                     Thread.sleep(30);
                     double frameDuration = System.currentTimeMillis() - lastFrame;
                     lastFrame = System.currentTimeMillis();
-                    if(playerManager.PlayersExist()){
-                        server.broadcast(new Bundle(playerManager.GetLocationData(serverStartTime)));
+                    switch(gameState){
+                        case StartRoom:
+                            startPad.Update(playerManager, frameDuration);
+                            SendStartPadInfo();
+                            if(startPad.starting){
+                                StartGame();
+                            }
+                            if(playerManager.PlayersExist()) {
+                                server.broadcast(new Bundle(playerManager.GetLocationData(serverStartTime)));
+                            }
+                            break;
+                        case GameRunning:
+                            enemyManager.UpdateEnemies(boundaryManager, frameDuration);
+                            server.broadcast(new Bundle(enemyManager.GetEnemyData(serverStartTime)));
+                            if(playerManager.PlayersExist()){
+                                server.broadcast(new Bundle(playerManager.GetLocationData(serverStartTime)));
+                            }
+                            break;
+                        case GameOver:
+                            //game over functionality
+                            break;
                     }
-                    enemyManager.UpdateEnemies(boundaryManager, frameDuration);
-                    server.broadcast(new Bundle(enemyManager.GetEnemyData(serverStartTime)));
                     importantMessageTimer += frameDuration;
                     if(importantMessageTimer > importantMessageCooldown){
                         importantMessageTimer -= importantMessageCooldown;
@@ -165,7 +191,7 @@ public class UDPServer implements Runnable{
             System.out.println("address was: " + addressString);
             System.out.println("compressed to: " + CompressAddress(addressString));
             server.broadcast(new Bundle("0001" + CompressAddress(addressString)
-                    + CompressInt(55555, 32)
+                    + CompressInt(port, 32)
                     + CompressString(serverName, 512)));
         }
     }
@@ -173,7 +199,14 @@ public class UDPServer implements Runnable{
         String out = boundaryManager.GetBoundaryData(serverStartTime);
         server.broadcast(new Bundle(out));
     }
-
+    public void SendStartingRoomInfo(){
+        String out = startPad.GetStartRoomInfo();
+        server.broadcast(new Bundle(out));
+    }
+    public void SendStartPadInfo(){
+        String out = startPad.GetPadInfo();
+        server.broadcast(new Bundle(out));
+    }
     //endregion UpdateFunctions
     //region Compression
     public static String CompressPlayerState(PlayerState state){
@@ -321,6 +354,8 @@ class Handler implements MessageHandler<Bundle> {
             case "0010":
                 server.SendBoundaryData();
                 break;
+            case "1000":
+                server.SendStartingRoomInfo();
             case "1001":
                 server.SendImportantMessageConfirmation(decompressedData);
                 break;
