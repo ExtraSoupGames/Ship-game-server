@@ -40,7 +40,7 @@ public class StartingPad {
         else{
             poweredState = 0;
         }
-        if(playerManager.PlayersExist() && allPlayersIn && startButton.active){ // TODO remove players exist check once start button functionality added
+        if(allPlayersIn && startButton.active){
             startTimer += deltaTime;
         }
         else{
@@ -60,7 +60,7 @@ public class StartingPad {
         return true;
     }
     String GetStartRoomInfo(){
-        return "1111";//TODO decide what data needs to be sent at start for client to render start room, boundaries?
+        return "1111";
     }
     String GetPadInfo(){
         String out = "1110";

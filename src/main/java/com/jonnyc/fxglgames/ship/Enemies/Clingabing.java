@@ -19,6 +19,8 @@ public class Clingabing implements Enemy{
     double idleTimer = 0; // timer to track how long clingabing has been idle
     double idleDuration = 3000; // duration to stay idle for
     double speed;
+    double aggroTimer = 0; // timer to track how long clingabing has been aggressive
+    double aggroDuration = 7000; // duration to be aggressive for
     public Clingabing(int pID, int pX, int pY, int pHealth, SceneManager pSceneManager) {
         ID = pID;
         x = pX;
@@ -49,6 +51,11 @@ public class Clingabing implements Enemy{
                 }
                 break;
             case DASHING:
+                aggroTimer += deltaTime;
+                if(aggroTimer > aggroDuration){
+                    aggroTimer = 0;
+                    Idle();
+                }
                 //move towards player until in range
                 Vector2 currentLocation = GetLocation();
                 Vector2 targetLocation = targetedPlayer.GetLocation();
@@ -64,7 +71,6 @@ public class Clingabing implements Enemy{
                 y = finalMovement.y;
                 break;
             case ATTACHED:
-                //TODO deal damage to the player periodically
                 //changing position here is kind of unnecessary as clingabing will be rendered on top of player anyway
                 x = attachedPlayer.x;
                 y = attachedPlayer.y;
@@ -103,6 +109,9 @@ public class Clingabing implements Enemy{
     private void Dash(){
         targetedPlayer = sceneManager.GetRandomPlayer();
         state = ClingabingState.DASHING;
+    }
+    private void Idle(){
+        state = ClingabingState.IDLE;
     }
     private void Attach(Player attachTo){
         attachedPlayer = attachTo;
