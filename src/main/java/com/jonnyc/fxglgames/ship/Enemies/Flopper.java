@@ -20,7 +20,7 @@ public class Flopper implements Enemy{
     double flightDuration = 1;
     double timeSinceFlop = 0;
     Vector2 flopStart;
-    double flightHeight = 200;
+    double flightHeight = 50;
     public Flopper(int pID, int pX, int pY, int pHealth, SceneManager pSceneManager){
         ID = pID;
         x = pX;

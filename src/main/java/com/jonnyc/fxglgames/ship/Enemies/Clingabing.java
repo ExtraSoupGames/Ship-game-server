@@ -25,7 +25,7 @@ public class Clingabing implements Enemy{
         y = pY;
         health = pHealth;
         sceneManager = pSceneManager;
-        speed =5;
+        speed =3;
         state = ClingabingState.IDLE;
         targetedPlayer = new Player();
     }

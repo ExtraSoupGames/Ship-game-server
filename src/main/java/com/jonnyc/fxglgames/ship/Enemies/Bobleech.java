@@ -18,7 +18,7 @@ public class Bobleech implements Enemy {
         y = pY;
         health = pHealth;
         sceneManager = pSceneManager;
-        speed = 3;
+        speed = 1.5;
         updateTargetTimer = 0;
         targetPlayerPos = new Vector2(x, y); // until it finds a player it will just stay still. this is fine
     }
