@@ -8,16 +8,18 @@ public class StartingPad {
     StartButton startButton;
     boolean starting;
     double startTimer;
+    int poweredState;
     public StartingPad(){
         x = 50;
         y = 50;
-        width = 50;
-        height = 50;
+        width = 64;
+        height = 64;
         startTimer = 0;
         startButton = new StartButton();
     }
     void Update(PlayerManager playerManager, double deltaTime){
         boolean allPlayersIn = true;
+        boolean somePlayersIn = false;
         for(Player p : playerManager.GetPlayers().values())
         {
             System.out.println("Checking player: " + p.ID);
@@ -25,6 +27,18 @@ public class StartingPad {
                 allPlayersIn = false;
                 System.out.println("Player " + p.ID + " is out of bounds");
             }
+            else{
+                somePlayersIn = true;
+            }
+        }
+        if(allPlayersIn){
+            poweredState = 2;
+        }
+        else if(somePlayersIn){
+            poweredState = 1;
+        }
+        else{
+            poweredState = 0;
         }
         if(playerManager.PlayersExist() && allPlayersIn && startButton.active){ // TODO remove players exist check once start button functionality added
             startTimer += deltaTime;
@@ -49,6 +63,12 @@ public class StartingPad {
         return "1111";//TODO decide what data needs to be sent at start for client to render start room, boundaries?
     }
     String GetPadInfo(){
-        return "1111"; // TODO add live transmission of render requirement data, players needed, players on, start timer, lever active
+        String out = "1110";
+        out = out.concat(UDPServer.CompressInt(poweredState, 2));
+        out = out.concat(UDPServer.CompressInt(startButton.active? 1 : 0, 1));
+        int timerToBroadcast = 3000 - (int)startTimer;
+        timerToBroadcast = timerToBroadcast / 500;
+        out = out.concat(UDPServer.CompressInt(timerToBroadcast, 3));
+        return out;
     }
 }
