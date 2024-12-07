@@ -71,4 +71,7 @@ public class StartingPad {
         out = out.concat(UDPServer.CompressInt(timerToBroadcast, 3));
         return out;
     }
+    public void LeverPulled(){
+        startButton.active = !startButton.active;
+    }
 }

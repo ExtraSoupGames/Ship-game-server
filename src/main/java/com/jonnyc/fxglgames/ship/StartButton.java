@@ -11,6 +11,6 @@ public class StartButton {
         y = 100;
         width = 50;
         height = 50;
-        active = true;//TODO change this to false and add ability for player to activate it
+        active = false;
     }
 }

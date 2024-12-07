@@ -207,6 +207,9 @@ public class UDPServer implements Runnable{
         String out = startPad.GetPadInfo();
         server.broadcast(new Bundle(out));
     }
+    public void StartLeverPulled(){
+        startPad.LeverPulled();
+    }
     //endregion UpdateFunctions
     //region Compression
     public static String CompressPlayerState(PlayerState state){
@@ -361,6 +364,9 @@ class Handler implements MessageHandler<Bundle> {
                 break;
             case "1011":
                 server.ReceiveImportantMessageConfirmation(decompressedData);
+                break;
+            case "1100":
+                server.StartLeverPulled();
                 break;
         }
     }
