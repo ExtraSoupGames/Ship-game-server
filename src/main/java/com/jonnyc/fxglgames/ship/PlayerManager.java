@@ -13,8 +13,6 @@ public class PlayerManager{
         int[] xy = UDPServer.DecompressPosition(data.substring(32, 48));
         PlayerState state = UDPServer.DecompressPlayerState(data.substring(48, 55));
         boolean isAlive = data.charAt(55) == '1';
-        System.out.println("Player had alive value of: " + isAlive);
-        System.out.println("got this from data: " + data);
         if (players.get(clientID) != null) {
             Player player = players.get(clientID);
             player.x = xy[0];

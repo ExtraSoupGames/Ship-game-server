@@ -17,9 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 
 import static com.jonnyc.fxglgames.ship.ShipServer.serverName;
 
@@ -50,6 +47,7 @@ public class UDPServer implements Runnable{
     private SceneManager sceneManager;
     private GameState gameState;
     private StartingPad startPad;
+    private PlayerPad newGamePad;
     Server<Bundle> server;
     long serverStartTime;
     double importantMessageCooldown;
@@ -62,6 +60,12 @@ public class UDPServer implements Runnable{
     private void StartGame(){
         gameState = GameState.GameRunning;
         SendImportantMessage("1101"); // game start code
+        //TODO change next 3 lines to use functions for these members to clear their data instead of making new ones
+        //this might be causing problems in the server code
+        //move construction to server constructor
+        enemyManager = new EnemyManager();
+        sceneManager = new SceneManager(enemyManager, playerManager);
+        boundaryManager = new BoundaryManager();
         enemyManager.AddBobleech(1, 50, 50, sceneManager);
         enemyManager.AddBobleech(2, 70, 50, sceneManager);
         enemyManager.AddBobleech(3, 90, 50, sceneManager);
@@ -81,10 +85,8 @@ public class UDPServer implements Runnable{
         Logger.configure(new LoggerConfig());
         Logger.addOutput(new ConsoleOutput(), LoggerLevel.FATAL);
         playerManager = new PlayerManager();
-        enemyManager = new EnemyManager();
-        sceneManager = new SceneManager(enemyManager, playerManager);
         startPad = new StartingPad();
-        boundaryManager = new BoundaryManager();
+        newGamePad = new PlayerPad();
         importantMessages = new ArrayList<ImportantMessage>();
         importantMessageCooldown = 500;
         //create server
@@ -103,7 +105,7 @@ public class UDPServer implements Runnable{
                     switch(gameState){
                         case StartRoom:
                             startPad.Update(playerManager, frameDuration);
-                            SendStartPadInfo();
+                            SendPlayerPadInfo(startPad);
                             if(startPad.starting){
                                 StartGame();
                             }
@@ -125,6 +127,14 @@ public class UDPServer implements Runnable{
                         case GameOver:
                             //game over functionality
                             //TODO add functionality for game to reset here
+                            newGamePad.Update(playerManager, frameDuration);
+                            SendPlayerPadInfo(newGamePad);
+                            if(newGamePad.poweredState == 2){
+                                StartGame();
+                            }
+                            if(playerManager.PlayersExist()){
+                                server.broadcast(new Bundle(playerManager.GetLocationData(serverStartTime)));
+                            }
                             break;
                     }
                     importantMessageTimer += frameDuration;
@@ -208,8 +218,8 @@ public class UDPServer implements Runnable{
         String out = startPad.GetStartRoomInfo();
         server.broadcast(new Bundle(out));
     }
-    public void SendStartPadInfo(){
-        String out = startPad.GetPadInfo();
+    public void SendPlayerPadInfo(PlayerPad padToSend){
+        String out = padToSend.GetPadInfo();
         server.broadcast(new Bundle(out));
     }
     public void StartLeverPulled(){
