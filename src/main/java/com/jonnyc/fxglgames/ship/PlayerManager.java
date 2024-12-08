@@ -29,10 +29,12 @@ public class PlayerManager{
     public String GetLocationData(long serverStartTime){
         StringBuilder outData = new StringBuilder("0101");
         for(Integer i : players.keySet()){
-            outData.append(UDPServer.CompressInt(i, 32));
             Player p = players.get(i);
-            outData.append(UDPServer.CompressPosition(p.x, p.y));
-            outData.append(UDPServer.CompressPlayerState(p.state));
+            if(p.isAlive){
+                outData.append(UDPServer.CompressInt(i, 32));
+                outData.append(UDPServer.CompressPosition(p.x, p.y));
+                outData.append(UDPServer.CompressPlayerState(p.state));
+            }
         }
         outData.append(UDPServer.LongToBinary(System.currentTimeMillis() - serverStartTime, 64));
         return outData.toString();
