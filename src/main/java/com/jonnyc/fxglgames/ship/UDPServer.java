@@ -117,9 +117,14 @@ public class UDPServer implements Runnable{
                             if(playerManager.PlayersExist()){
                                 server.broadcast(new Bundle(playerManager.GetLocationData(serverStartTime)));
                             }
+                            if(playerManager.AllPlayersDead()){
+                                server.broadcast(new Bundle("1001")); // TODO add report data here
+                                gameState = GameState.GameOver;
+                            }
                             break;
                         case GameOver:
                             //game over functionality
+                            //TODO add functionality for game to reset here
                             break;
                     }
                     importantMessageTimer += frameDuration;

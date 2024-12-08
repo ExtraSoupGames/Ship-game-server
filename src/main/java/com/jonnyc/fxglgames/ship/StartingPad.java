@@ -22,10 +22,8 @@ public class StartingPad {
         boolean somePlayersIn = false;
         for(Player p : playerManager.GetPlayers().values())
         {
-            System.out.println("Checking player: " + p.ID);
             if(!IsInBounds(p.x, p.y, 10, 10)){
                 allPlayersIn = false;
-                System.out.println("Player " + p.ID + " is out of bounds");
             }
             else{
                 somePlayersIn = true;

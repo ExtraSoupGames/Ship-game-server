@@ -12,13 +12,17 @@ public class PlayerManager{
         int clientID = UDPServer.DecompressInt(data.substring(0, 32));
         int[] xy = UDPServer.DecompressPosition(data.substring(32, 48));
         PlayerState state = UDPServer.DecompressPlayerState(data.substring(48, 55));
+        boolean isAlive = data.charAt(55) == '1';
+        System.out.println("Player had alive value of: " + isAlive);
+        System.out.println("got this from data: " + data);
         if (players.get(clientID) != null) {
             Player player = players.get(clientID);
             player.x = xy[0];
             player.y = xy[1];
             player.state = state;
+            player.isAlive = isAlive;
         } else {
-            players.put(clientID, new Player(clientID, 0, 0, state));
+            players.put(clientID, new Player(clientID, 0, 0, state, isAlive));
         }
     };
     public boolean PlayersExist(){
@@ -46,5 +50,17 @@ public class PlayerManager{
             clientIDs.add(i);
         }
         return clientIDs;
+    }
+    public boolean AllPlayersDead(){
+        if(!PlayersExist()){
+            return false; // if no players exist then there are no players to be dead
+        }
+        boolean allDead = true;
+        for(Integer i : players.keySet()){
+            if(players.get(i).isAlive){
+                allDead = false;
+            }
+        }
+        return allDead;
     }
 }
