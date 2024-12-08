@@ -116,7 +116,7 @@ public class UDPServer implements Runnable{
                         case GameRunning:
                             enemyManager.UpdateEnemies(boundaryManager, frameDuration);
                             server.broadcast(new Bundle(enemyManager.GetEnemyData(serverStartTime)));
-                            if(playerManager.PlayersExist()){
+                            if(!playerManager.AllPlayersDead()){
                                 server.broadcast(new Bundle(playerManager.GetLocationData(serverStartTime)));
                             }
                             if(playerManager.AllPlayersDead()){
