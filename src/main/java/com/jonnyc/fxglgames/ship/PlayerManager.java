@@ -30,11 +30,10 @@ public class PlayerManager{
         StringBuilder outData = new StringBuilder("0101");
         for(Integer i : players.keySet()){
             Player p = players.get(i);
-            if(p.isAlive){
-                outData.append(UDPServer.CompressInt(i, 32));
-                outData.append(UDPServer.CompressPosition(p.x, p.y));
-                outData.append(UDPServer.CompressPlayerState(p.state));
-            }
+            outData.append(UDPServer.CompressInt(i, 32));
+            outData.append(UDPServer.CompressPosition(p.x, p.y));
+            outData.append(UDPServer.CompressPlayerState(p.state));
+            outData.append(p.isAlive ? "1" : "0");
         }
         outData.append(UDPServer.LongToBinary(System.currentTimeMillis() - serverStartTime, 64));
         return outData.toString();

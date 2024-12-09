@@ -63,7 +63,7 @@ public class UDPServer implements Runnable{
         //TODO change next 3 lines to use functions for these members to clear their data instead of making new ones
         //this might be causing problems in the server code
         //move construction to server constructor
-        enemyManager = new EnemyManager();
+        enemyManager.ResetEnemies();
         sceneManager = new SceneManager(enemyManager, playerManager);
         boundaryManager = new BoundaryManager();
         enemyManager.AddBobleech(1, 50, 50, sceneManager);
@@ -85,6 +85,7 @@ public class UDPServer implements Runnable{
         Logger.configure(new LoggerConfig());
         Logger.addOutput(new ConsoleOutput(), LoggerLevel.FATAL);
         playerManager = new PlayerManager();
+        enemyManager = new EnemyManager();
         startPad = new StartingPad();
         newGamePad = new PlayerPad();
         importantMessages = new ArrayList<ImportantMessage>();
@@ -203,8 +204,6 @@ public class UDPServer implements Runnable{
             throw new RuntimeException(e);
         }
         if(addressString != null){
-            System.out.println("address was: " + addressString);
-            System.out.println("compressed to: " + CompressAddress(addressString));
             server.broadcast(new Bundle("0001" + CompressAddress(addressString)
                     + CompressInt(port, 32)
                     + CompressString(serverName, 512)));
@@ -374,6 +373,7 @@ class Handler implements MessageHandler<Bundle> {
                 break;
             case "1000":
                 server.SendStartingRoomInfo();
+                break;
             case "1001":
                 server.SendImportantMessageConfirmation(decompressedData);
                 break;

@@ -60,4 +60,7 @@ public class EnemyManager {
     public HashMap<Integer, Enemy> GetEnemies() {
         return new HashMap<>(enemies);
     }
+    public void ResetEnemies(){
+        enemies.clear();
+    }
 }
