@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static com.jonnyc.fxglgames.ship.ShipServer.serverName;
 
@@ -301,19 +302,28 @@ class Handler implements MessageHandler<Bundle> {
     static class BundleMessageReaderS implements UDPMessageReader<Bundle> {
         BundleMessageReaderS(){
         }
+        public static int convertToInt(byte[] data) {
+            if (data.length != 4) {
+                throw new IllegalArgumentException("Input array must have exactly 4 bytes.");
+            }
+
+            // Convert the 4 bytes to a single 32-bit integer
+            int result = ((data[0] & 0xFF) << 24)  // Shift the first byte 24 bits to the left
+                    | ((data[1] & 0xFF) << 16)  // Shift the second byte 16 bits to the left
+                    | ((data[2] & 0xFF) << 8)   // Shift the third byte 8 bits to the left
+                    | (data[3] & 0xFF);         // No shift needed for the last byte
+
+            return result;
+        }
         @Override
         public Bundle read(@NotNull byte[] inData){
-            byte b = 0;
-            int index = inData.length;
-            while(b==0){
-                index--;
-                b = inData[index];
-            }
+            byte[] headerBytes = new byte[]{inData[3], inData[2], inData[1], inData[0]};
+            int length = convertToInt(headerBytes);
             StringBuilder dataDecompressor = new StringBuilder();
-            for(int i = 0; i <= index; i ++){
-                byte thisByte = inData[i];
+            for(int i = 0; i <= length -4; i ++){
+                byte thisByte = inData[i + 4];
                 String binaryString = String.format("%8s", Integer.toBinaryString(thisByte & 0xFF)).replace(' ', '0');
-                dataDecompressor.append(binaryString.substring(0, 7));
+                dataDecompressor.append(binaryString, 0, 8);
             }
             String decompressedData = dataDecompressor.toString();
             return new Bundle(decompressedData);
@@ -327,19 +337,21 @@ class Handler implements MessageHandler<Bundle> {
         public byte[] write(Bundle bundle) {
             StringBuilder data = new StringBuilder(bundle.getName());
             //compress data
-            //pad data to a byte (only first 7 bits used of each byte)
-            while((data.length() % 7) != 0){
+            //pad data to a byte
+            while((data.length() % 8) != 0){
                 data.append("0");
             }
 
-            byte[] packetData = new byte[data.length() / 7];
-            for(int i = 0; i < data.toString().length(); i += 7){
-                if(data.charAt(i) == '1'){
-                    data.replace(i, i + 1, "-"); //convert to twos complement representation
-                    packetData[i / 7] = (byte) (-128 - Byte.parseByte(data.substring(i, i + 7) + "1", 2));
-                }
-                else{
-                    packetData[i / 7] = Byte.parseByte(data.substring(i, i + 7) + "1", 2);
+            byte[] packetData = new byte[data.length() / 8];
+            for(int i = 0; i < data.length(); i += 8){
+                String byteString = data.substring(i, i + 8);
+                // Convert the binary string to a signed byte
+                try {
+                    byte byteValue = (byte) Integer.parseInt(byteString, 2);
+                    packetData[i / 8] = byteValue;
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid binary string: " + byteString);
+                    return new byte[0]; // Return an empty byte array in case of error
                 }
             }
             return packetData;

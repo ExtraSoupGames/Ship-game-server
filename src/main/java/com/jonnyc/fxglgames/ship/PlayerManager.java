@@ -2,6 +2,7 @@ package com.jonnyc.fxglgames.ship;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class PlayerManager{
     private final HashMap<Integer, Player> players;
@@ -9,18 +10,22 @@ public class PlayerManager{
         players = new HashMap<>();
     }
     public void incomingData(String data){
-        int clientID = UDPServer.DecompressInt(data.substring(0, 32));
-        int[] xy = UDPServer.DecompressPosition(data.substring(32, 48));
-        PlayerState state = UDPServer.DecompressPlayerState(data.substring(48, 55));
-        boolean isAlive = data.charAt(55) == '1';
-        if (players.get(clientID) != null) {
-            Player player = players.get(clientID);
-            player.x = xy[0];
-            player.y = xy[1];
-            player.state = state;
-            player.isAlive = isAlive;
-        } else {
-            players.put(clientID, new Player(clientID, 0, 0, state, isAlive));
+        if(!Objects.equals(data, "0000")) {
+            //System.out.println(data);
+            int clientID = UDPServer.DecompressInt(data.substring(0, 32));
+            int[] xy = UDPServer.DecompressPosition(data.substring(32, 48));
+            PlayerState state = UDPServer.DecompressPlayerState(data.substring(48, 55));
+            boolean isAlive = data.charAt(55) == '1';
+            if (players.get(clientID) != null) {
+                Player player = players.get(clientID);
+                player.x = xy[0];
+                player.y = xy[1];
+                player.state = state;
+                player.isAlive = isAlive;
+            } else {
+                players.put(clientID, new Player(clientID, 0, 0, state, isAlive));
+                System.out.println("constructing new player with ID: " + clientID);
+            }
         }
     };
     public boolean PlayersExist(){
