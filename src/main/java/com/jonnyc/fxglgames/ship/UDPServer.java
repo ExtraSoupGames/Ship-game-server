@@ -213,10 +213,6 @@ public class UDPServer implements Runnable{
         String out = boundaryManager.GetBoundaryData(serverStartTime);
         server.broadcast(new Bundle(out));
     }
-    public void SendStartingRoomInfo(){
-        String out = startPad.GetStartRoomInfo();
-        server.broadcast(new Bundle(out));
-    }
     public void SendPlayerPadInfo(PlayerPad padToSend){
         String out = padToSend.GetPadInfo();
         server.broadcast(new Bundle(out));
@@ -325,7 +321,6 @@ class Handler implements MessageHandler<Bundle> {
     }
     static class BundleMessageWriterS implements UDPMessageWriter<Bundle> {
         BundleMessageWriterS(){
-            //System.out.println("Constructing UDP BUNDLE MESSAGE WRITER");
         }
         @NotNull
         @Override
@@ -358,29 +353,30 @@ class Handler implements MessageHandler<Bundle> {
         String decompressedData = bundle.getName();
         String messageType = decompressedData.substring(0, 4); // first 4 bits of message denote message data
         decompressedData = decompressedData.substring(4); // process only the rest of the data
-        switch (messageType){
-            case "0000":
+        HandleMessage(messageType, decompressedData);
+    }
+    private void HandleMessage(String messageType, String decompressedData){
+        //depending on the first 4 characters, representing the message type, different responses occur
+        switch (messageType) {
+            case "0000": // A client on a discovery screen scanning for servers is requesting the server data
                 server.SendNetworkInfo();
                 break;
-            case "0100":
+            case "0100": // A client sending data about its player: location, state, and if its alive
                 playerManager.incomingData(decompressedData);
                 break;
-            case "0110":
+            case "0110": // A client sending data about enemies: if it's player has hit any
                 enemyManager.incomingData(decompressedData);
                 break;
-            case "0010":
+            case "0010": // A client requesting the locations of the boundaries of the ship
                 server.SendBoundaryData();
                 break;
-            case "1000":
-                server.SendStartingRoomInfo();
-                break;
-            case "1001":
+            case "1001": // Confirmation message when a client is sending an important message to the server
                 server.SendImportantMessageConfirmation(decompressedData);
                 break;
-            case "1011":
+            case "1011": // Receiving confirmation of an important message sent by the server
                 server.ReceiveImportantMessageConfirmation(decompressedData);
                 break;
-            case "1100":
+            case "1100": // A client pulled the lever in the start room
                 server.StartLeverPulled();
                 break;
         }

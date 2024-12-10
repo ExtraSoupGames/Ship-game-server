@@ -44,9 +44,6 @@ public class PlayerPad {
         }
         return true;
     }
-    String GetStartRoomInfo(){
-        return "1111";
-    }
     String GetPadInfo(){
         return "1111"; // TODO use this for other stuff
     }
