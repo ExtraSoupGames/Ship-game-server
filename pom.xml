@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.almasb.fxglgames</groupId>
-    <artifactId>Pong</artifactId>
+    <artifactId>ShipGameServer</artifactId>
     <version>1.0</version>
 
     <properties>
