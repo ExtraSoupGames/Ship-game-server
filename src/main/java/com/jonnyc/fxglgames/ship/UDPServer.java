@@ -55,15 +55,14 @@ public class UDPServer implements Runnable{
     double importantMessageTimer;
     int importantMessageID = 0;
     int port = 55555;
+    double timeSurvived;
     ArrayList<ImportantMessage> importantMessages;
     public UDPServer(){
     }
     private void StartGame(){
         gameState = GameState.GameRunning;
         SendImportantMessage("1101"); // game start code
-        //TODO change next 3 lines to use functions for these members to clear their data instead of making new ones
-        //this might be causing problems in the server code
-        //move construction to server constructor
+        timeSurvived = 0;
         enemyManager.ResetEnemies();
         sceneManager = new SceneManager(enemyManager, playerManager);
         boundaryManager = new BoundaryManager();
@@ -73,11 +72,10 @@ public class UDPServer implements Runnable{
         enemyManager.AddBobleech(4, 110, 50, sceneManager);
         enemyManager.AddClingabing(5, 100, 100, sceneManager);
         enemyManager.AddFlopper(6, 200, 200, sceneManager);
-        boundaryManager.AddBoundary(new Boundary(10,  10, 200, 10, 0,1));
-        boundaryManager.AddBoundary(new Boundary(200, 10, 300, 110, -1,1));
-        boundaryManager.AddBoundary(new Boundary(300, 110, 200, 210, -1,-1));
-        boundaryManager.AddBoundary(new Boundary(200, 210, 10, 210, 0,-1));
-        boundaryManager.AddBoundary(new Boundary(10, 210, 10, 10, 1,0));
+        boundaryManager.AddBoundary(new Boundary(0, 0, 720, 0, 0, 1));
+        boundaryManager.AddBoundary(new Boundary(720, 0, 720, 480, -1, 0));
+        boundaryManager.AddBoundary(new Boundary(720, 480, 0, 480, 0, -1));
+        boundaryManager.AddBoundary(new Boundary(0, 480, 0, 0, 1, 0));
     }
     @Override
     public void run() {
@@ -97,7 +95,7 @@ public class UDPServer implements Runnable{
             connection.addMessageHandler(new Handler(playerManager, enemyManager, this));
         });
         //create thread to broadcast data
-        var t = new Thread(() -> {
+        Thread t = new Thread(() -> {
             double lastFrame = System.currentTimeMillis();
             while(true){
                 try {
@@ -116,6 +114,8 @@ public class UDPServer implements Runnable{
                             }
                             break;
                         case GameRunning:
+                            timeSurvived += frameDuration;
+                            SendTimeSurvived();
                             enemyManager.UpdateEnemies(boundaryManager, frameDuration);
                             server.broadcast(new Bundle(enemyManager.GetEnemyData(serverStartTime)));
                             if(!playerManager.AllPlayersDead()){
@@ -220,6 +220,11 @@ public class UDPServer implements Runnable{
     }
     public void StartLeverPulled(){
         startPad.LeverPulled();
+    }
+    public void SendTimeSurvived(){
+        String out = "0111";
+        out = out.concat(CompressInt((int)timeSurvived / 1000, 32)); // convert millis to seconds
+        server.broadcast(new Bundle(out));
     }
     //endregion UpdateFunctions
     //region Compression
