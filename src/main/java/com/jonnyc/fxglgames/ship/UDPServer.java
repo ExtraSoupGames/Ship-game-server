@@ -196,17 +196,20 @@ public class UDPServer implements Runnable{
     //endregion ImportantMessages
     //region UpdateFunctions
     public void SendNetworkInfo(){
-        String addressString;
-        try {
-            InetAddress address = InetAddress.getLocalHost();
-            addressString = address.getHostAddress();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
-        if(addressString != null){
-            server.broadcast(new Bundle("0000" + CompressAddress(addressString)
-                    + CompressInt(port, 32)
-                    + CompressString(serverName, 512)));
+        //only send network info if on start screen
+        if (gameState == GameState.StartRoom){
+            String addressString;
+            try {
+                InetAddress address = InetAddress.getLocalHost();
+                addressString = address.getHostAddress();
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            }
+            if(addressString != null){
+                server.broadcast(new Bundle("0000" + CompressAddress(addressString)
+                        + CompressInt(port, 32)
+                        + CompressString(serverName, 512)));
+            }
         }
     }
     public void SendBoundaryData(){
