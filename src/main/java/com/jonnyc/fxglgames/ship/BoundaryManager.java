@@ -20,7 +20,7 @@ public class BoundaryManager {
         boundaries.add(b);
     }
     public String GetBoundaryData(long serverStartTime){
-        StringBuilder out = new StringBuilder("0011");
+        StringBuilder out = new StringBuilder("0001");
         for (Boundary b : boundaries){
             out.append(b.GetDataForBroadcast());
         }

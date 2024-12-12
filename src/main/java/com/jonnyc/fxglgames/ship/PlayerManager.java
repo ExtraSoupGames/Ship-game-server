@@ -10,29 +10,27 @@ public class PlayerManager{
         players = new HashMap<>();
     }
     public void incomingData(String data){
-        if(!Objects.equals(data, "0000")) {
-            //System.out.println(data);
-            int clientID = UDPServer.DecompressInt(data.substring(0, 32));
-            int[] xy = UDPServer.DecompressPosition(data.substring(32, 48));
-            PlayerState state = UDPServer.DecompressPlayerState(data.substring(48, 55));
-            boolean isAlive = data.charAt(55) == '1';
-            if (players.get(clientID) != null) {
-                Player player = players.get(clientID);
-                player.x = xy[0];
-                player.y = xy[1];
-                player.state = state;
-                player.isAlive = isAlive;
-            } else {
-                players.put(clientID, new Player(clientID, 0, 0, state, isAlive));
-                System.out.println("constructing new player with ID: " + clientID);
-            }
+        //System.out.println(data);
+        int clientID = UDPServer.DecompressInt(data.substring(0, 32));
+        int[] xy = UDPServer.DecompressPosition(data.substring(32, 48));
+        PlayerState state = UDPServer.DecompressPlayerState(data.substring(48, 55));
+        boolean isAlive = data.charAt(55) == '1';
+        if (players.get(clientID) != null) {
+            Player player = players.get(clientID);
+            player.x = xy[0];
+            player.y = xy[1];
+            player.state = state;
+            player.isAlive = isAlive;
+        } else {
+            players.put(clientID, new Player(clientID, 0, 0, state, isAlive));
+            System.out.println("constructing new player with ID: " + clientID);
         }
     };
     public boolean PlayersExist(){
         return players.size() > 0;
     }
     public String GetLocationData(long serverStartTime){
-        StringBuilder outData = new StringBuilder("0101");
+        StringBuilder outData = new StringBuilder("0010");
         for(Integer i : players.keySet()){
             Player p = players.get(i);
             outData.append(UDPServer.CompressInt(i, 32));

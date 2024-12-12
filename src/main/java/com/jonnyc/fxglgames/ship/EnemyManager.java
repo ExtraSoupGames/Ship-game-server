@@ -46,7 +46,7 @@ public class EnemyManager {
         }
     }
     public String GetEnemyData(long serverStartTime){
-        StringBuilder outData = new StringBuilder("1000");
+        StringBuilder outData = new StringBuilder("0011");
         //add data of enemies
         Set<Integer> IDs = enemies.keySet();
         for(Integer ID : IDs){

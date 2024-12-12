@@ -61,7 +61,7 @@ public class UDPServer implements Runnable{
     }
     private void StartGame(){
         gameState = GameState.GameRunning;
-        SendImportantMessage("1101"); // game start code
+        SendImportantMessage("0101"); // game start code
         timeSurvived = 0;
         enemyManager.ResetEnemies();
         sceneManager = new SceneManager(enemyManager, playerManager);
@@ -122,13 +122,12 @@ public class UDPServer implements Runnable{
                                 server.broadcast(new Bundle(playerManager.GetLocationData(serverStartTime)));
                             }
                             if(playerManager.AllPlayersDead()){
-                                server.broadcast(new Bundle("1001")); // TODO add report data here
+                                server.broadcast(new Bundle("0100")); // TODO add report data here
                                 gameState = GameState.GameOver;
                             }
                             break;
                         case GameOver:
                             //game over functionality
-                            //TODO add functionality for game to reset here
                             newGamePad.Update(playerManager, frameDuration);
                             SendPlayerPadInfo(newGamePad);
                             if(newGamePad.poweredState == 2){
@@ -176,7 +175,7 @@ public class UDPServer implements Runnable{
         }
     }
     public void SendImportantMessageConfirmation(String messageIn){
-        String returnHeader = "1010"; // all confirmation messages have the same header as each important message
+        String returnHeader = "1110"; // all confirmation messages have the same header as each important message
         //has as unique client id and message id so the header is only needed to signify that it is an important message confirmation
         String messageID = messageIn.substring(0, 32);
         String clientID = messageIn.substring(32, 64);
@@ -205,7 +204,7 @@ public class UDPServer implements Runnable{
             throw new RuntimeException(e);
         }
         if(addressString != null){
-            server.broadcast(new Bundle("0001" + CompressAddress(addressString)
+            server.broadcast(new Bundle("0000" + CompressAddress(addressString)
                     + CompressInt(port, 32)
                     + CompressString(serverName, 512)));
         }
@@ -378,23 +377,20 @@ class Handler implements MessageHandler<Bundle> {
             case "0000": // A client on a discovery screen scanning for servers is requesting the server data
                 server.SendNetworkInfo();
                 break;
-            case "0100": // A client sending data about its player: location, state, and if its alive
-                playerManager.incomingData(decompressedData);
-                break;
-            case "0110": // A client sending data about enemies: if it's player has hit any
-                enemyManager.incomingData(decompressedData);
-                break;
-            case "0010": // A client requesting the locations of the boundaries of the ship
+            case "0001": // A client requesting the locations of the boundaries of the ship
                 server.SendBoundaryData();
                 break;
-            case "1001": // Confirmation message when a client is sending an important message to the server
-                server.SendImportantMessageConfirmation(decompressedData);
+            case "0010": // A client sending data about its player: location, state, and if its alive
+                playerManager.incomingData(decompressedData);
+                break;
+            case "0011": // A client sending data about enemies: if it's player has hit any
+                enemyManager.incomingData(decompressedData);
+                break;
+            case "0100": // A client pulled the lever in the start room
+                server.StartLeverPulled();
                 break;
             case "1011": // Receiving confirmation of an important message sent by the server
                 server.ReceiveImportantMessageConfirmation(decompressedData);
-                break;
-            case "1100": // A client pulled the lever in the start room
-                server.StartLeverPulled();
                 break;
         }
     }

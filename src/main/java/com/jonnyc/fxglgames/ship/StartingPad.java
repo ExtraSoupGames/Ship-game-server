@@ -23,7 +23,7 @@ public class StartingPad extends PlayerPad{
         }
     }
     String GetPadInfo(){
-        String out = "1110";
+        String out = "0110";
         out = out.concat(UDPServer.CompressInt(poweredState, 2));
         out = out.concat(UDPServer.CompressInt(startButton.active? 1 : 0, 1));
         int timerToBroadcast = 3000 - (int)startTimer;
