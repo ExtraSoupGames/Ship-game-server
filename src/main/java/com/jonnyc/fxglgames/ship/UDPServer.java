@@ -18,6 +18,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static com.jonnyc.fxglgames.ship.ShipServer.serverName;
 
@@ -48,6 +50,7 @@ public class UDPServer implements Runnable{
     private SceneManager sceneManager;
     private GameState gameState;
     private StartingPad startPad;
+    private PlayerColourChooser colourChooser;
     private PlayerPad newGamePad;
     Server<Bundle> server;
     long serverStartTime;
@@ -86,6 +89,7 @@ public class UDPServer implements Runnable{
         playerManager = new PlayerManager();
         enemyManager = new EnemyManager();
         startPad = new StartingPad();
+        colourChooser = new PlayerColourChooser();
         newGamePad = new PlayerPad();
         importantMessages = new ArrayList<ImportantMessage>();
         importantMessageCooldown = 500;
@@ -105,6 +109,7 @@ public class UDPServer implements Runnable{
                     switch(gameState){
                         case StartRoom:
                             startPad.Update(playerManager, frameDuration);
+                            SendColoursInfo(colourChooser);
                             SendPlayerPadInfo(startPad);
                             if(startPad.starting){
                                 StartGame();
@@ -168,6 +173,13 @@ public class UDPServer implements Runnable{
         ImportantMessage messageToSend = new ImportantMessage(binaryContents, GetNextMessageID(), playerManager.GetClientIDs());
         importantMessages.add(messageToSend);
     }
+    public void SendImportantMessageTo(String binaryContents, Integer clientID){
+        System.out.println("sending important message to player ID: " + clientID);
+        ImportantMessage messageToSend = new ImportantMessage(binaryContents,
+                GetNextMessageID(),
+                new ArrayList<>(Collections.singletonList(clientID)));
+        importantMessages.add(messageToSend);
+    }
     public void SendImportantMessages(){
         ArrayList<ImportantMessage> messages = (ArrayList<ImportantMessage>) importantMessages.clone();
         for(ImportantMessage im : messages){
@@ -219,6 +231,27 @@ public class UDPServer implements Runnable{
     public void SendPlayerPadInfo(PlayerPad padToSend){
         String out = padToSend.GetPadInfo();
         server.broadcast(new Bundle(out));
+    }
+    public void SendColoursInfo(PlayerColourChooser chooser){
+        String out = chooser.GetColourInfo();
+        server.broadcast(new Bundle(out));
+    }
+    public void SendColourConfirm(String messageContents){
+        String colourCode = messageContents.substring(64, 67);
+        String clientBinary = messageContents.substring(67, 99);
+        int clientID = DecompressInt(clientBinary);
+        if(colourChooser.Use(colourCode)){
+            SendImportantMessageTo("10001" + colourCode + clientBinary, clientID);
+            // 1000 is the code for a colour confirmation, the final digit is the result of the request
+            // the colour code is included so the client can display its colour
+        }
+        else{
+            //SendImportantMessage("10000");
+        }
+    }
+    public void FreeUpColour(String messageContents){
+        String colourCode = messageContents.substring(64,67);
+        colourChooser.FreeUp(colourCode);
     }
     public void StartLeverPulled(){
         startPad.LeverPulled();
@@ -392,6 +425,13 @@ class Handler implements MessageHandler<Bundle> {
             case "0100": // A client pulled the lever in the start room
                 server.StartLeverPulled();
                 break;
+            case "0101": // A client selects a colour
+                server.SendImportantMessageConfirmation(decompressedData);
+                server.SendColourConfirm(decompressedData);
+                break;
+            case "0110":
+                server.SendImportantMessageConfirmation(decompressedData);
+                server.FreeUpColour(decompressedData);
             case "1011": // Receiving confirmation of an important message sent by the server
                 server.ReceiveImportantMessageConfirmation(decompressedData);
                 break;
