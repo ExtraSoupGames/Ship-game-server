@@ -51,6 +51,7 @@ public class UDPServer implements Runnable{
     private GameState gameState;
     private StartingPad startPad;
     private PlayerColourChooser colourChooser;
+    private ArrayList<Integer> clientsChosenColour;
     private PlayerPad newGamePad;
     Server<Bundle> server;
     long serverStartTime;
@@ -90,6 +91,7 @@ public class UDPServer implements Runnable{
         enemyManager = new EnemyManager();
         startPad = new StartingPad();
         colourChooser = new PlayerColourChooser();
+        clientsChosenColour = new ArrayList<Integer>();
         newGamePad = new PlayerPad();
         importantMessages = new ArrayList<ImportantMessage>();
         importantMessageCooldown = 500;
@@ -108,7 +110,7 @@ public class UDPServer implements Runnable{
                     lastFrame = System.currentTimeMillis();
                     switch(gameState){
                         case StartRoom:
-                            startPad.Update(playerManager, frameDuration);
+                            startPad.Update(playerManager, frameDuration, clientsChosenColour);
                             SendColoursInfo(colourChooser);
                             SendPlayerPadInfo(startPad);
                             if(startPad.starting){
@@ -241,6 +243,9 @@ public class UDPServer implements Runnable{
         String clientBinary = messageContents.substring(67, 99);
         int clientID = DecompressInt(clientBinary);
         if(colourChooser.Use(colourCode)){
+            if(!clientsChosenColour.contains(clientID)){
+                clientsChosenColour.add(clientID);
+            }
             SendImportantMessageTo("10001" + colourCode + clientBinary, clientID);
             // 1000 is the code for a colour confirmation, the final digit is the result of the request
             // the colour code is included so the client can display its colour

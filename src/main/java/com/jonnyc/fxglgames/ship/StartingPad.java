@@ -1,5 +1,7 @@
 package com.jonnyc.fxglgames.ship;
 
+import java.util.ArrayList;
+
 public class StartingPad extends PlayerPad{
     StartButton startButton;
     double startTimer;
@@ -10,9 +12,15 @@ public class StartingPad extends PlayerPad{
         starting = false;
         startButton = new StartButton();
     }
-    void Update(PlayerManager playerManager, double deltaTime){
+    void Update(PlayerManager playerManager, double deltaTime, ArrayList<Integer> clientsChosenColour){
         super.Update(playerManager, deltaTime);
-        if(allPlayersIn && startButton.active){
+        boolean allClientsChosenColour = true;
+        for(Player p : playerManager.GetPlayers().values()){
+            if(!clientsChosenColour.contains(p.ID)){
+                allClientsChosenColour = false;
+            }
+        }
+        if(allPlayersIn && startButton.active && allClientsChosenColour){
             startTimer += deltaTime;
         }
         else{
