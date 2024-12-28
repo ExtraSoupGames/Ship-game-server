@@ -129,7 +129,9 @@ public class UDPServer implements Runnable{
                                 server.broadcast(new Bundle(playerManager.GetLocationData(serverStartTime)));
                             }
                             if(playerManager.AllPlayersDead()){
-                                server.broadcast(new Bundle("0100")); // TODO add report data here
+                                SendImportantMessage("0100" + CompressInt((int) timeSurvived / 100, 32));
+                                //time survived is divided by 100 here, not 1000, so the time
+                                //can be displayed to more precision on the final screen
                                 gameState = GameState.GameOver;
                             }
                             break;
