@@ -273,7 +273,8 @@ public class UDPServer implements Runnable{
     public static String CompressPlayerState(PlayerState state){
         return CompressInt(state.direction, 3) +
                 CompressInt(state.movementState, 2) +
-                CompressInt(state.attackState, 2);
+                CompressInt(state.attackState, 2) +
+                CompressInt(state.animationState, 2);
     }
     public static String CompressInt(int inInt, int maxBits){
         return PadBinary(Integer.toBinaryString(inInt), maxBits);
@@ -299,13 +300,14 @@ public class UDPServer implements Runnable{
         return padding.concat(inBinary);
     }
     public static PlayerState DecompressPlayerState(String binaryIn) {
-        if(binaryIn.length() != 7){
-            System.out.println("PlayerState Binary must be 7 bits exactly");
+        if(binaryIn.length() != 9){
+            System.out.println("PlayerState Binary must be 9 bits exactly");
         }
         int direction = Integer.parseUnsignedInt(binaryIn.substring(0, 3), 2);
         int movementState = Integer.parseUnsignedInt(binaryIn.substring(3, 5), 2);
         int attackState = Integer.parseUnsignedInt(binaryIn.substring(5, 7), 2);
-        return new PlayerState(direction, movementState, attackState);
+        int animationState = Integer.parseUnsignedInt(binaryIn.substring(7, 9), 2);
+        return new PlayerState(direction, movementState, attackState, animationState);
     }
     public static int DecompressInt(String binaryIn){
         return Integer.parseUnsignedInt(binaryIn, 2);

@@ -4,7 +4,8 @@ public class PlayerState {
     int direction; // 8 possible values
     int movementState; // 4 possible values
     int attackState; // 3 possible values
-    public PlayerState(int pDirection, int pMovementState, int pAttackState) {
+    int animationState; // 3 possible values
+    public PlayerState(int pDirection, int pMovementState, int pAttackState, int pAnimationState) {
         if(pDirection > 7){
             System.out.println("direction should be between 0 and 7, inputted value: " + pDirection);
         }
@@ -17,5 +18,6 @@ public class PlayerState {
         direction = pDirection;
         movementState = pMovementState;
         attackState = pAttackState;
+        animationState = pAnimationState;
     };
 }
