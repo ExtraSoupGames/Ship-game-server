@@ -9,7 +9,7 @@ public class PlayerPad {
     protected boolean allPlayersIn;
     public PlayerPad(){
         x = 50;
-        y = 50;
+        y = 100;
         width = 64;
         height = 64;
     }
