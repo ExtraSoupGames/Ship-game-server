@@ -57,6 +57,8 @@ public class UDPServer implements Runnable{
     long serverStartTime;
     double importantMessageCooldown;
     double importantMessageTimer;
+    double heartbeatCooldown;
+    double heartbeatTimer;
     int importantMessageID = 0;
     int port = 55555;
     double timeSurvived;
@@ -95,6 +97,7 @@ public class UDPServer implements Runnable{
         newGamePad = new PlayerPad();
         importantMessages = new ArrayList<ImportantMessage>();
         importantMessageCooldown = 500;
+        heartbeatCooldown = 500;
         //create server
         server = new NetService().newUDPServer(port);
         server.setOnConnected(connection -> {
@@ -152,6 +155,13 @@ public class UDPServer implements Runnable{
                         importantMessageTimer -= importantMessageCooldown;
                         SendImportantMessages();
                     }
+                    heartbeatTimer += frameDuration;
+                    if(heartbeatTimer > heartbeatCooldown){
+                        heartbeatTimer -= heartbeatCooldown;
+                        SendHeartbeat();
+                    }
+                    playerManager.CheckForKickedPlayers(this);
+                    playerManager.UpdateHeartbeats(frameDuration);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -211,6 +221,18 @@ public class UDPServer implements Runnable{
     }
     //endregion ImportantMessages
     //region UpdateFunctions
+    public void SendHeartbeat(){
+        String out = "1010";
+        server.broadcast(new Bundle(out));
+    }
+    public void KickPlayer(int clientID){
+        String out = "1011";
+        out = out.concat(CompressInt(clientID, 32));
+        server.broadcast(new Bundle(out));
+    }
+    public void HeartbeatResponse(String data){
+        playerManager.HeartbeatResponse(data);
+    }
     public void SendNetworkInfo(){
         //only send network info if on start screen
         if (gameState == GameState.StartRoom){
@@ -441,7 +463,11 @@ class Handler implements MessageHandler<Bundle> {
             case "0110":
                 server.SendImportantMessageConfirmation(decompressedData);
                 server.FreeUpColour(decompressedData);
-            case "1011": // Receiving confirmation of an important message sent by the server
+                break;
+            case "0111":
+                server.HeartbeatResponse(decompressedData);
+                break;
+            case "1110": // Receiving confirmation of an important message sent by the server
                 server.ReceiveImportantMessageConfirmation(decompressedData);
                 break;
         }

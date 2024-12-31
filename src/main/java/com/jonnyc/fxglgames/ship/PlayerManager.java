@@ -26,6 +26,28 @@ public class PlayerManager{
             System.out.println("constructing new player with ID: " + clientID);
         }
     };
+    public void HeartbeatResponse(String data){
+        int clientID = UDPServer.DecompressInt(data.substring(0, 32));
+        if(players.get(clientID) != null){
+            Player player = players.get(clientID);
+            player.ResetHeartbeatTimer();
+        }
+    }
+    public void UpdateHeartbeats(double deltaTime) {
+        for (Integer i : players.keySet()) {
+            Player p = players.get(i);
+            p.UpdateHeartbeatTimer(deltaTime);
+        }
+    }
+    public void CheckForKickedPlayers(UDPServer server){
+        for (Integer i : players.keySet()) {
+            Player p = players.get(i);
+            if(p.MarkedForDeletion()){
+                server.KickPlayer(i);
+                players.remove(i);
+            }
+        }
+    }
     public boolean PlayersExist(){
         return players.size() > 0;
     }

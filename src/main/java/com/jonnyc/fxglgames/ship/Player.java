@@ -6,6 +6,7 @@ public class Player {
     public int y;
     public PlayerState state;
     boolean isAlive;
+    double timeSinceHeartbeatResponse = 0;
 
     public Player(int ID, int x, int y, PlayerState state, boolean isAlive) {
         this.ID = ID;
@@ -21,5 +22,14 @@ public class Player {
     }
     public Vector2 GetLocation(){
         return new Vector2(x, y);
+    }
+    public void ResetHeartbeatTimer(){
+        timeSinceHeartbeatResponse = 0;
+    }
+    public void UpdateHeartbeatTimer(double deltaTime){
+        timeSinceHeartbeatResponse += deltaTime;
+    }
+    public boolean MarkedForDeletion(){
+        return timeSinceHeartbeatResponse > 5000;
     }
 }
