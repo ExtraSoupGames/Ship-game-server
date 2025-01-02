@@ -5,14 +5,16 @@ public class Player {
     public int x;
     public int y;
     public PlayerState state;
+    String colourPalette;
     boolean isAlive;
     double timeSinceHeartbeatResponse = 0;
 
-    public Player(int ID, int x, int y, PlayerState state, boolean isAlive) {
+    public Player(int ID, int x, int y, PlayerState state, String colourPalette, boolean isAlive) {
         this.ID = ID;
         this.x = x;
         this.y = y;
         this.state = state;
+        this.colourPalette = colourPalette;
         this.isAlive = isAlive;
     }
 

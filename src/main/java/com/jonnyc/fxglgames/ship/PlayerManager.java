@@ -14,15 +14,17 @@ public class PlayerManager{
         int clientID = UDPServer.DecompressInt(data.substring(0, 32));
         int[] xy = UDPServer.DecompressPosition(data.substring(32, 48));
         PlayerState state = UDPServer.DecompressPlayerState(data.substring(48, 57));
-        boolean isAlive = data.charAt(57) == '1';
+        String colourPalette = data.substring(57, 60);
+        boolean isAlive = data.charAt(60) == '1';
         if (players.get(clientID) != null) {
             Player player = players.get(clientID);
             player.x = xy[0];
             player.y = xy[1];
             player.state = state;
+            player.colourPalette = colourPalette;
             player.isAlive = isAlive;
         } else {
-            players.put(clientID, new Player(clientID, 0, 0, state, isAlive));
+            players.put(clientID, new Player(clientID, 0, 0, state, colourPalette, isAlive));
             System.out.println("constructing new player with ID: " + clientID);
         }
     };
@@ -58,6 +60,7 @@ public class PlayerManager{
             outData.append(UDPServer.CompressInt(i, 32));
             outData.append(UDPServer.CompressPosition(p.x, p.y));
             outData.append(UDPServer.CompressPlayerState(p.state));
+            outData.append(p.colourPalette);
             outData.append(p.isAlive ? "1" : "0");
         }
         outData.append(UDPServer.LongToBinary(System.currentTimeMillis() - serverStartTime, 64));
