@@ -16,10 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.jonnyc.fxglgames.ship.ShipServer.serverName;
 
@@ -53,6 +50,10 @@ public class UDPServer implements Runnable{
     private PlayerColourChooser colourChooser;
     private ArrayList<Integer> clientsChosenColour;
     private PlayerPad newGamePad;
+    double enemySpawnCooldown;
+    double enemySpawnTimer;
+    Random random;
+    int currentEnemyID;
     Server<Bundle> server;
     long serverStartTime;
     double importantMessageCooldown;
@@ -78,10 +79,12 @@ public class UDPServer implements Runnable{
         enemyManager.AddBobleech(4, 110, 50, sceneManager);
         enemyManager.AddClingabing(5, 100, 100, sceneManager);
         enemyManager.AddFlopper(6, 200, 200, sceneManager);
+        currentEnemyID = 7;
         boundaryManager.AddBoundary(new Boundary(0, 0, 720, 0, 0, 1));
         boundaryManager.AddBoundary(new Boundary(720, 0, 720, 480, -1, 0));
         boundaryManager.AddBoundary(new Boundary(720, 480, 0, 480, 0, -1));
         boundaryManager.AddBoundary(new Boundary(0, 480, 0, 0, 1, 0));
+        random = new Random();
     }
     @Override
     public void run() {
@@ -98,6 +101,8 @@ public class UDPServer implements Runnable{
         importantMessages = new ArrayList<ImportantMessage>();
         importantMessageCooldown = 500;
         heartbeatCooldown = 500;
+        enemySpawnCooldown = 5000;
+        enemySpawnTimer = 0;
         //create server
         server = new NetService().newUDPServer(port);
         server.setOnConnected(connection -> {
@@ -137,6 +142,14 @@ public class UDPServer implements Runnable{
                                 //can be displayed to more precision on the final screen
                                 gameState = GameState.GameOver;
                             }
+                            enemySpawnTimer -= frameDuration;
+                            if(enemySpawnTimer < 0){
+                                enemySpawnTimer += enemySpawnCooldown;
+                                SpawnRandomEnemy();
+                                SpawnRandomEnemy();
+                                SpawnRandomEnemy();
+                                SpawnRandomEnemy();
+                            }
                             break;
                         case GameOver:
                             //game over functionality
@@ -174,6 +187,19 @@ public class UDPServer implements Runnable{
         //start server which will listen for incoming data
         server.startTask().run();
     }
+    //region enemySpawning
+    private void SpawnRandomEnemy(){
+        int enemyTypes = 3;
+        int randomNumber = random.nextInt(enemyTypes) + 1;
+        if(randomNumber == 1){
+            enemyManager.AddBobleech(currentEnemyID, 50, 50, sceneManager);
+        }
+        else if (randomNumber == 2){
+            enemyManager.AddFlopper(currentEnemyID, 50, 50, sceneManager);
+        }
+        currentEnemyID ++;
+    }
+    //endregion enemySpawning
     //region ImportantMessages
     private int GetNextMessageID(){
         importantMessageID++;
