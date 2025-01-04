@@ -80,10 +80,13 @@ public class UDPServer implements Runnable{
         enemyManager.AddClingabing(5, 100, 100, sceneManager);
         enemyManager.AddFlopper(6, 200, 200, sceneManager);
         currentEnemyID = 7;
-        boundaryManager.AddBoundary(new Boundary(0, 0, 720, 0, 0, 1));
-        boundaryManager.AddBoundary(new Boundary(720, 0, 720, 480, -1, 0));
-        boundaryManager.AddBoundary(new Boundary(720, 480, 0, 480, 0, -1));
-        boundaryManager.AddBoundary(new Boundary(0, 480, 0, 0, 1, 0));
+        boundaryManager.AddBoundary(new Boundary(32, 0, 464, 0, 0, 1));
+        boundaryManager.AddBoundary(new Boundary(464, 0, 562, 40, -1, 1));
+        boundaryManager.AddBoundary(new Boundary(562, 40, 710, 240, -1, 0));
+        boundaryManager.AddBoundary(new Boundary(710, 180, 562, 380, -1, 0));
+        boundaryManager.AddBoundary(new Boundary(562, 380, 464, 420, -1, -1));
+        boundaryManager.AddBoundary(new Boundary(464, 420, 32, 420, 0, -1));
+        boundaryManager.AddBoundary(new Boundary(32, 420, 32, 0, 1, 0));
         random = new Random();
     }
     @Override
@@ -221,6 +224,7 @@ public class UDPServer implements Runnable{
         importantMessages.add(messageToSend);
     }
     public void SendImportantMessages(){
+        //called repeatedly in the main server loop
         ArrayList<ImportantMessage> messages = (ArrayList<ImportantMessage>) importantMessages.clone();
         for(ImportantMessage im : messages){
             server.broadcast(new Bundle(im.GetMessage()));
