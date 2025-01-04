@@ -414,14 +414,20 @@ class Handler implements MessageHandler<Bundle> {
         }
         @Override
         public Bundle read(@NotNull byte[] inData){
+            //each packet starts with a 4 byte header that denotes the length of the packet
             byte[] headerBytes = new byte[]{inData[3], inData[2], inData[1], inData[0]};
+            //we calculate the length from these 4 bytes, so that we can read the rest of the data
             int length = convertToInt(headerBytes);
             StringBuilder dataDecompressor = new StringBuilder();
+            //iterate through the remaining bytes of the packet, skipping the first 4
             for(int i = 0; i <= length -4; i ++){
                 byte thisByte = inData[i + 4];
+                //extract the binary data from each byte, as a string of 1s and 0s
                 String binaryString = String.format("%8s", Integer.toBinaryString(thisByte & 0xFF)).replace(' ', '0');
+                //append this to our output
                 dataDecompressor.append(binaryString, 0, 8);
             }
+            //format and return our output
             String decompressedData = dataDecompressor.toString();
             return new Bundle(decompressedData);
         }
@@ -433,17 +439,19 @@ class Handler implements MessageHandler<Bundle> {
         @Override
         public byte[] write(Bundle bundle) {
             StringBuilder data = new StringBuilder(bundle.getName());
-            //compress data
-            //pad data to a byte
+            //pad data to the nearest byte
             while((data.length() % 8) != 0){
                 data.append("0");
             }
-
+            //create an empty array of bytes to hold our data
             byte[] packetData = new byte[data.length() / 8];
+            //iterate through the string, byte at a time
             for(int i = 0; i < data.length(); i += 8){
+                //extract a single byte of data from the input string
                 String byteString = data.substring(i, i + 8);
                 // Convert the binary string to a signed byte
                 try {
+                    //parse the string representing a byte into a byte
                     byte byteValue = (byte) Integer.parseInt(byteString, 2);
                     packetData[i / 8] = byteValue;
                 } catch (NumberFormatException e) {
@@ -451,6 +459,7 @@ class Handler implements MessageHandler<Bundle> {
                     return new byte[0]; // Return an empty byte array in case of error
                 }
             }
+            //return our formatted packet data
             return packetData;
         }
     }
