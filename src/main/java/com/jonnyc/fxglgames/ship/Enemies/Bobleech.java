@@ -7,6 +7,7 @@ public class Bobleech implements Enemy {
     double x;
     double y;
     int health;
+    boolean flipped;
     SceneManager sceneManager;
     double speed;
     double updateTargetTimer; // updating target doesnt need to happen every frame so we have a timer
@@ -17,6 +18,7 @@ public class Bobleech implements Enemy {
         x = pX;
         y = pY;
         health = pHealth;
+        flipped = false;
         sceneManager = pSceneManager;
         speed = 1.5;
         updateTargetTimer = 0;
@@ -58,14 +60,16 @@ public class Bobleech implements Enemy {
         //apply finalised location
         x = finalLocation.x;
         y = finalLocation.y;
+
+        //adjust if sprite needs to be flipped
+        flipped = adjustedDirection.x > 0;
     }
     @Override
     public String GetBroadcastData(){
         String out = "000" // enemy type code
                 + UDPServer.CompressInt(ID, 32)
                 + UDPServer.CompressPosition((int) x, (int) y)
-        // leech has no additional data so 2 bits of padding is needed
-                + "00";
+                + (flipped ? "01" : "00");
         return out;
     }
     public Vector2 GetLocation(){
