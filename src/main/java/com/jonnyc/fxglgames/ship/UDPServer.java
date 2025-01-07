@@ -493,6 +493,7 @@ class Handler implements MessageHandler<Bundle> {
                 enemyManager.incomingData(decompressedData);
                 break;
             case "0100": // A client pulled the lever in the start room
+                server.SendImportantMessageConfirmation(decompressedData);
                 server.StartLeverPulled();
                 break;
             case "0101": // A client selects a colour
