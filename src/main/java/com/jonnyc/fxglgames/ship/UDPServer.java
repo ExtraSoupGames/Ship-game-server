@@ -73,12 +73,6 @@ public class UDPServer implements Runnable{
         enemyManager.ResetEnemies();
         sceneManager = new SceneManager(enemyManager, playerManager);
         boundaryManager = new BoundaryManager();
-        enemyManager.AddBobleech(1, 50, 50, sceneManager);
-        enemyManager.AddBobleech(2, 70, 50, sceneManager);
-        enemyManager.AddBobleech(3, 90, 50, sceneManager);
-        enemyManager.AddBobleech(4, 110, 50, sceneManager);
-        enemyManager.AddClingabing(5, 100, 100, sceneManager);
-        enemyManager.AddFlopper(6, 200, 200, sceneManager);
         currentEnemyID = 7;
         boundaryManager.AddBoundary(new Boundary(32, 0, 464, 0, 0, 1));
         boundaryManager.AddBoundary(new Boundary(464, 0, 562, 40, -1, 1));
@@ -199,6 +193,9 @@ public class UDPServer implements Runnable{
         }
         else if (randomNumber == 2){
             enemyManager.AddFlopper(currentEnemyID, 50, 50, sceneManager);
+        }
+        else if (randomNumber == 3){
+            enemyManager.AddClingabing(currentEnemyID, 50, 50, sceneManager);
         }
         currentEnemyID ++;
     }
